@@ -259,8 +259,8 @@
           <button class="cal-arr" onclick="shiftMo(1)">›</button>
         </div>
         <div class="cal-dnames">
-          <div class="cal-dn">Su</div><div class="cal-dn">Mo</div><div class="cal-dn">Tu</div>
-          <div class="cal-dn">We</div><div class="cal-dn">Th</div><div class="cal-dn">Fr</div><div class="cal-dn">Sa</div>
+          <div class="cal-dn">Mo</div><div class="cal-dn">Tu</div><div class="cal-dn">We</div>
+          <div class="cal-dn">Th</div><div class="cal-dn">Fr</div><div class="cal-dn">Sa</div><div class="cal-dn">Su</div>
         </div>
         <div class="cal-grid" id="cal-grid"></div>
         <div class="cal-loading" id="cal-loading">
@@ -641,21 +641,24 @@ function buildCal() {
   const g = document.getElementById('cal-grid');
   g.innerHTML = '';
   const today = new Date();
-  const first = new Date(S.yr, S.mo, 1).getDay();
+  // Monday-start: getDay() returns 0=Sun,1=Mon...6=Sat
+  // Remap so Monday=0, Tuesday=1 ... Sunday=6
+  const rawFirst = new Date(S.yr, S.mo, 1).getDay();
+  const first    = (rawFirst + 6) % 7; // shift so Mon=0
   const days  = new Date(S.yr, S.mo+1, 0).getDate();
   const prevD = new Date(S.yr, S.mo, 0).getDate();
 
   for (let i = first-1; i >= 0; i--) mkCell(g, prevD-i, 'other');
 
   for (let d = 1; d <= days; d++) {
-    const dt       = new Date(S.yr, S.mo, d);
-    const past     = dt < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const isSun    = dt.getDay() === 0;
-    const key      = dateKey(S.yr, S.mo, d);
-    const isBlocked= BLOCKED_DATES.has(key);
-    const isToday  = d===today.getDate() && S.mo===today.getMonth() && S.yr===today.getFullYear();
-    const isSel    = S.date && S.date.getDate()===d && S.date.getMonth()===S.mo && S.date.getFullYear()===S.yr;
-    const unavail  = past || isSun || isBlocked;
+    const dt        = new Date(S.yr, S.mo, d);
+    const past      = dt < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const isTuesday = dt.getDay() === 2; // studio closed Tuesdays
+    const key       = dateKey(S.yr, S.mo, d);
+    const isBlocked = BLOCKED_DATES.has(key);
+    const isToday   = d===today.getDate() && S.mo===today.getMonth() && S.yr===today.getFullYear();
+    const isSel     = S.date && S.date.getDate()===d && S.date.getMonth()===S.mo && S.date.getFullYear()===S.yr;
+    const unavail   = past || isTuesday || isBlocked;
 
     let cls = unavail ? (isBlocked && !past ? 'blocked' : 'past') : 'avail';
     if (isToday && !unavail) cls += ' today';
