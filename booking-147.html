@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=360">
+<title>Booking Request</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Syne+Mono&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --steel-light: #d4d8dc;
+    --steel-mid:   #8a9199;
+    --steel-dark:  #3a3f45;
+    --steel-deep:  #1c1f22;
+    --steel-shine: #eef0f2;
+    --wood-light:  #c8a97e;
+    --wood-mid:    #9b7a52;
+    --wood-dark:   #5c3d1e;
+    --electric:    #0a6fff;
+    --electric-glow: rgba(10,111,255,0.35);
+    --electric-dim:  rgba(10,111,255,0.12);
+    --bg:          #16191c;
+    --surface:     #1e2226;
+    --border:      rgba(212,216,220,0.1);
+    --border-wood: rgba(200,169,126,0.2);
+    --text:        #d4d8dc;
+    --muted:       rgba(212,216,220,0.45);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; overflow-x: auto; min-width: 360px; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    overflow-x: auto;
+    cursor: crosshair;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.013) 2px, rgba(255,255,255,0.013) 3px),
+      repeating-linear-gradient(180deg, transparent, transparent 60px, rgba(255,255,255,0.007) 60px, rgba(255,255,255,0.007) 61px);
+    pointer-events: none; z-index: 9998;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: -50%; width: 200%; height: 200%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9997; opacity: 0.4;
+    animation: grain 0.8s steps(1) infinite;
+  }
+
+  @keyframes grain {
+    0%  { transform: translate(0,0); }
+    25% { transform: translate(-2%,-4%); }
+    50% { transform: translate(-5%, 2%); }
+    75% { transform: translate(3%,-1%); }
+    100%{ transform: translate(2%,-3%); }
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed; top:0; left:0; right:0; z-index: 500;
+    height: 64px; display: flex; justify-content: space-between; align-items: center;
+    padding: 0 16px;
+    background: rgba(22,25,28,0.84); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  header::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
+    pointer-events: none;
+  }
+  .logo { font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:16px; letter-spacing:-0.02em; color:var(--steel-shine); position:relative; z-index:1; }
+  .logo em { font-style:normal; color:var(--electric); text-shadow:0 0 14px var(--electric-glow); }
+  nav { display:flex; gap:36px; position:relative; z-index:1; }
+  nav a { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  nav a:hover { color:var(--electric); }
+  .header-appt { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.25em; text-transform:uppercase; color:var(--muted); position:relative; z-index:1; }
+
+  /* ── WOOD BAND ── */
+  .wood-band {
+    height: 10px;
+    background: linear-gradient(90deg, var(--wood-dark) 0%, var(--wood-mid) 20%, var(--wood-light) 45%, var(--wood-mid) 70%, var(--wood-dark) 100%);
+    position: relative; overflow: hidden; flex-shrink: 0;
+  }
+  .wood-band::after {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(89deg, transparent, transparent 7px, rgba(0,0,0,0.14) 7px, rgba(0,0,0,0.14) 8px);
+  }
+
+  /* ── SECTION LABEL ── */
+  .sec-eyebrow { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--electric); margin-bottom:12px; }
+
+  /* ── DURATION BADGE ── */
+  .duration-badge {
+    display: none;
+    align-items: center; gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid rgba(10,111,255,0.4);
+    background: var(--electric-dim);
+    margin-bottom: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--electric); letter-spacing: 0.08em;
+  }
+  .duration-badge.show { display: flex; }
+  .duration-badge strong { color: #fff; font-size: 14px; }
+  .duration-badge .badge-note { color: var(--muted); font-size: 9px; }
+
+  /* ── MENU TABS ── */
+  .menu-tabs { display:flex; gap:0; border:1px solid var(--border); margin-bottom:1px; width:100%; box-sizing:border-box; }
+  .menu-tab {
+    flex:1; padding:9px 8px; background:none; border:none; border-right:1px solid var(--border);
+    color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:13px;
+    cursor:crosshair; transition:all 0.2s;
+  }
+  .menu-tab:last-child { border-right:none; }
+  .menu-tab:hover { color:var(--steel-shine); background:rgba(255,255,255,0.03); }
+  .menu-tab.active { color:#fff; background:var(--electric); box-shadow:inset 0 0 0 1px rgba(255,255,255,0.1); }
+
+  .menu-panel { display:none; border:1px solid var(--border); border-top:none; width:100%; box-sizing:border-box; overflow:hidden; }
+  .menu-panel.active { display:block; }
+
+  /* ── SERVICE ROWS ── */
+  .svc-row {
+    padding:10px 12px; border-bottom:1px solid var(--border);
+    display:flex; align-items:flex-start; cursor:crosshair;
+    transition:background 0.2s; position:relative; gap:16px;
+    width:100%; box-sizing:border-box; overflow:hidden;
+  }
+  .svc-row::after { content:''; position:absolute; left:0; top:0; bottom:0; width:2px; background:var(--electric); box-shadow:0 0 8px var(--electric-glow); transform:scaleY(0); transition:transform 0.2s; transform-origin:bottom; }
+  .svc-row:last-child { border-bottom:none; }
+  .svc-row:hover { background:rgba(10,111,255,0.06); }
+  .svc-row:hover::after { transform:scaleY(1); }
+  .svc-row.sel { background:rgba(10,111,255,0.11); }
+  .svc-row.sel::after { transform:scaleY(1); }
+
+  .svc-check {
+    width:16px; height:16px; border:1px solid var(--steel-mid);
+    flex-shrink:0; position:relative; transition:all 0.15s; align-self:flex-start; margin-top:1px;
+  }
+  .svc-row.sel .svc-check { background:var(--electric); border-color:var(--electric); box-shadow:0 0 8px var(--electric-glow); }
+  .svc-row.sel .svc-check::after {
+    content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:10px; color:#fff; font-family:'IBM Plex Mono',monospace;
+  }
+  .svc-row:hover .svc-check { border-color:var(--electric); }
+
+  .svc-body { flex:1; min-width:0; overflow:hidden; }
+  .svc-name { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px; color:var(--steel-shine); line-height:16px; margin-bottom:4px; text-transform:uppercase; }
+  .svc-tag  { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--electric); margin-bottom:3px; }
+  .svc-desc { font-family:'IBM Plex Mono',monospace; font-size:8px; font-style:italic; color:var(--muted); line-height:1.3; }
+  .svc-dur  { display:none; }
+
+  /* ── ACUITY EMBED ── */
+  /*
+    Acuity JS embed (month_view layout) injects an iframe we cannot style internally.
+    We clip it by giving .acuity-wrap a fixed height + overflow:hidden, and push
+    #acuity-embed-target upward so the "APPOINTMENT" card, timezone row and
+    "TODAY/TOMORROW" day-picker are scrolled out of the visible window.
+    The wrap's bottom edge clips the "Powered by acuity" footer automatically.
+    Adjust TOP_OFFSET and WRAP_HEIGHT together if Acuity's layout changes.
+  */
+  .acuity-wrap {
+    border: 1px solid var(--border);
+    background: #fff;
+    overflow: hidden;
+    position: relative;
+    height: 620px;   /* visible window: day cols + time slots, no header/footer */
+  }
+  #acuity-embed-target {
+    position: absolute;
+    /* Clip from top:
+       - "APPOINTMENT" heading + session card: ~230px
+       - timezone row:                         ~50px
+       - TODAY/TOMORROW day-header nav:        ~110px
+       Total offset needed:                    ~390px              */
+    top: -390px;
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
+  #acuity-embed-target iframe {
+    display: block !important;
+    width: 100% !important;
+    border: none !important;
+    height: 1200px !important;  /* tall: slots + Powered-by footer clipped by wrap */
+  }
+
+  /* ── SELECTED SERVICES PANEL ── */
+  .sel-svc {
+    border:1px solid var(--border); border-left:2px solid var(--electric);
+    padding:18px 22px; margin-bottom:24px;
+    background:var(--electric-dim); min-height:72px;
+    box-shadow:0 0 20px rgba(10,111,255,0.08);
+  }
+  .sel-lbl { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+  .sel-empty { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); }
+  .sel-list { display:flex; flex-direction:column; gap:0; }
+  .sel-item { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid rgba(212,216,220,0.07); gap:8px; }
+  .sel-item:last-child { border-bottom:none; }
+  .sel-item-name { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--steel-shine); flex:1; }
+  .sel-item-dur  { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); flex-shrink:0; }
+  .sel-remove { background:none; border:none; color:var(--muted); font-size:14px; cursor:crosshair; padding:2px 4px; line-height:1; transition:color 0.15s; flex-shrink:0; }
+  .sel-remove:hover { color:#ff4444; }
+  .sel-total { margin-top:12px; padding-top:10px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .sel-total-lbl { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); }
+  .sel-total-val { font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:14px; color:var(--electric); text-shadow:0 0 10px var(--electric-glow); }
+
+  /* ── FORM ── */
+  .f-field { margin-bottom:16px; }
+  .f-lbl { display:block; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
+  .f-in,.f-ta { width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:13px; padding:12px 15px; outline:none; transition:border-color 0.2s,box-shadow 0.2s; cursor:crosshair; }
+  .f-in::placeholder,.f-ta::placeholder { color:rgba(212,216,220,0.2); }
+  .f-in:focus,.f-ta:focus { border-color:var(--electric); box-shadow:0 0 16px var(--electric-dim); }
+  .f-ta { resize:vertical; min-height:96px; }
+  .f-select {
+    appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(212,216,220,0.4)'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; cursor:crosshair;
+  }
+  .f-select option { background:var(--surface); color:var(--text); }
+
+  /* ── BOOKING NOTICE ── */
+  .booking-notice {
+    display:flex; gap:14px; align-items:flex-start;
+    border:1px solid var(--border-wood); background:rgba(200,169,126,0.05);
+    padding:18px 20px; margin-bottom:20px; margin-top:4px;
+  }
+  .notice-icon { color:var(--wood-light); font-size:16px; flex-shrink:0; margin-top:1px; opacity:0.8; }
+  .booking-notice p { font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.85; color:var(--muted); letter-spacing:0.02em; }
+
+  /* ── BUTTONS ── */
+  .btn-book {
+    width:100%; padding:17px 32px; background:var(--electric); color:#fff;
+    font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:13px;
+    letter-spacing:0.1em; text-transform:uppercase; border:none; cursor:crosshair;
+    position:relative; overflow:hidden; transition:all 0.25s; margin-top:8px;
+    box-shadow:0 0 32px var(--electric-glow);
+  }
+  .btn-book::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); transform:translateX(-100%); transition:transform 0.5s; }
+  .btn-book:hover::before { transform:translateX(100%); }
+  .btn-book:hover { box-shadow:0 0 48px var(--electric-glow); transform:translateY(-1px); }
+  .btn-book:disabled { opacity:0.28; cursor:not-allowed; transform:none; box-shadow:none; }
+
+  /* ── UPLOAD ── */
+  .upload-zone {
+    border:1px dashed rgba(212,216,220,0.2); padding:28px 20px; text-align:center;
+    cursor:crosshair; transition:all 0.2s; background:var(--surface);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100px;
+  }
+  .upload-zone:hover,.upload-zone.drag-over { border-color:var(--electric); background:var(--electric-dim); box-shadow:0 0 20px var(--electric-dim); }
+  .upload-icon { font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; color:var(--electric); letter-spacing:0.15em; margin-bottom:8px; }
+  .preview-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:8px; }
+  .preview-item { position:relative; aspect-ratio:1; overflow:hidden; border:1px solid var(--border); }
+  .preview-item img { width:100%; height:100%; object-fit:cover; display:block; }
+  .preview-remove { position:absolute; top:3px; right:3px; width:18px; height:18px; background:rgba(10,10,10,0.85); border:none; color:#fff; font-size:11px; display:flex; align-items:center; justify-content:center; cursor:crosshair; opacity:0; transition:opacity 0.15s; }
+  .preview-item:hover .preview-remove { opacity:1; }
+
+  /* ── OVERLAY / CONFIRM ── */
+  .overlay { position:fixed; inset:0; background:rgba(22,25,28,0.93); backdrop-filter:blur(12px); z-index:1000; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+  .overlay.show { opacity:1; pointer-events:all; }
+  .confirm-page { background:var(--bg); width:100%; max-width:640px; max-height:90vh; overflow-y:auto; border:1px solid var(--border); transform:translateY(16px); transition:transform 0.35s; box-shadow:0 0 80px rgba(10,111,255,0.15); }
+  .overlay.show .confirm-page { transform:translateY(0); }
+  .confirm-header { display:flex; justify-content:space-between; align-items:center; padding:20px 28px; border-bottom:1px solid var(--border); }
+  .confirm-header-label { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.25em; color:var(--electric); }
+  .confirm-ref { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); border:1px solid var(--border); padding:6px 12px; }
+  .confirm-banner { display:flex; align-items:flex-start; gap:16px; margin:20px 28px; padding:20px; background:rgba(10,111,255,0.08); border:1px solid rgba(10,111,255,0.25); }
+  .confirm-banner-icon { width:36px; height:36px; background:var(--electric); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; color:#fff; flex-shrink:0; box-shadow:0 0 16px var(--electric-glow); }
+  .confirm-banner-title { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:15px; color:var(--steel-shine); margin-bottom:8px; }
+  .confirm-banner-sub { font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.7; color:var(--muted); }
+  .confirm-top { padding:20px 28px; border-bottom:1px solid var(--border); }
+  .confirm-sub { font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.8; color:var(--muted); }
+  .confirm-summary { padding:28px; border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:10px; }
+  .confirm-notice { padding:28px; border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:16px; }
+  .cn-row { display:flex; gap:14px; align-items:flex-start; font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.7; color:var(--muted); }
+  .cn-icon { color:var(--wood-light); flex-shrink:0; }
+  .m-row { display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:12px; gap:16px; }
+  .m-row span:first-child { color:var(--muted); flex-shrink:0; }
+  .m-row span:last-child  { color:var(--steel-shine); text-align:right; }
+  .btn-cls { display:block; width:100%; background:none; border:none; border-top:1px solid var(--border); color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11px; padding:20px; cursor:crosshair; letter-spacing:0.1em; transition:all 0.2s; text-align:center; }
+  .btn-cls:hover { color:var(--electric); background:var(--electric-dim); }
+
+  /* ── REVEAL ── */
+  .reveal { opacity:0; transform:translateY(20px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in { opacity:1; transform:translateY(0); }
+
+  /* ── FOOTER ── */
+  footer { border-top:1px solid var(--border); padding:24px 16px; display:flex; justify-content:space-between; align-items:center; background:var(--surface); }
+  .foot-logo { font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:15px; color:var(--steel-shine); }
+  .foot-logo em { font-style:normal; color:var(--electric); text-shadow:0 0 10px var(--electric-glow); }
+  .foot-copy { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.1em; }
+
+  @media (max-width:600px) {
+    .confirm-page { margin:8px; max-height:95vh; }
+    .confirm-top,.confirm-summary,.confirm-notice { padding:20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Other<em>___</em>0.01</div>
+  <div class="header-appt">BY APPOINTMENT ONLY</div>
+  <nav>
+    <a href="#services">Services</a>
+    <a href="#booking">Book</a>
+  </nav>
+</header>
+
+<!-- ── BOOKING ── -->
+<section id="booking" style="padding-top:64px; padding-bottom:0;">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:60px 16px 40px; align-items:start;">
+
+    <!-- LEFT: ACUITY CALENDAR -->
+    <div class="reveal" style="min-width:0; overflow:hidden;">
+      <div class="sec-eyebrow">01 / Availability</div>
+
+      <!-- Duration indicator shown when services selected -->
+      <div class="duration-badge" id="duration-badge">
+        <span>Total:</span>
+        <strong id="duration-text">—</strong>
+        <span class="badge-note">· calendar updated to match</span>
+      </div>
+
+      <div class="acuity-wrap" id="acuity-wrap">
+        <div id="acuity-embed-target"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: SERVICE MENU -->
+    <div class="reveal" style="min-width:0; overflow:hidden;">
+      <div class="sec-eyebrow">02 / Menu</div>
+
+      <div class="menu-tabs">
+        <button class="menu-tab active" onclick="switchTab('hair',this)">HAIR</button>
+        <button class="menu-tab" onclick="switchTab('nails',this)">NAILS</button>
+        <button class="menu-tab" onclick="switchTab('beards',this)">BEARDS</button>
+      </div>
+
+      <!-- HAIR -->
+      <div class="menu-panel active" id="panel-hair">
+        <div class="svc-row" onclick="pickSvc(this,'Cut','Hair',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body">
+            <div class="svc-name">Cut ✃</div>
+            <div class="svc-desc">tailored precision cuts</div>
+          </div>
+          <div class="svc-dur">90 min</div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Colour','Hair',180)">
+          <div class="svc-check"></div>
+          <div class="svc-body">
+            <div class="svc-name">Colour</div>
+            <div class="svc-desc">full colour, highlights or creative work — let's discuss!</div>
+          </div>
+          <div class="svc-dur">180 min</div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Hair / Scalp Treatment','Hair',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body">
+            <div class="svc-name">Hair / Scalp Treatment</div>
+            <div class="svc-desc">targeted care for hair and scalp health</div>
+          </div>
+          <div class="svc-dur">90 min</div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Cold Perm','Hair',180)">
+          <div class="svc-check"></div>
+          <div class="svc-body">
+            <div class="svc-name">Cold Perm</div>
+            <div class="svc-desc">add waves, texture &amp; volume</div>
+          </div>
+          <div class="svc-dur">180 min</div>
+        </div>
+      </div>
+
+      <!-- NAILS -->
+      <div class="menu-panel" id="panel-nails">
+        <div class="svc-row" onclick="pickSvc(this,'Gel Overlay + Nail Art','Nails',150)">
+          <div class="svc-check"></div>
+          <div class="svc-body">
+            <div class="svc-name">Gel Overlay + Nail Art</div>
+            <div class="svc-tag">Natural Nail</div>
+            <div class="svc-desc">strengthen your natural nails with builder gel</div>
+          </div>
+          <div class="svc-dur">150 min</div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Gel Extensions + Nail Art','Nails',240)">
+          <div class="svc-check"></div>
+          <div class="svc-body">
+            <div class="svc-name">Gel Extensions + Nail Art</div>
+            <div class="svc-tag">Extensions</div>
+            <div class="svc-desc">show me your nail inspo!</div>
+          </div>
+          <div class="svc-dur">240 min</div>
+        </div>
+      </div>
+
+      <!-- BEARDS -->
+      <div class="menu-panel" id="panel-beards">
+        <div class="svc-row" onclick="pickSvc(this,'Hot Towel Shave','Beards',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body">
+            <div class="svc-name">Hot Towel Shave</div>
+            <div class="svc-desc">traditional straight razor shave</div>
+          </div>
+          <div class="svc-dur">90 min</div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Beard Shape + Trim','Beards',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body">
+            <div class="svc-name">Beard Shape + Trim</div>
+            <div class="svc-desc">defined lines &amp; balanced shape</div>
+          </div>
+          <div class="svc-dur">90 min</div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Tint / Colour','Beards',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body">
+            <div class="svc-name">Tint / Colour</div>
+            <div class="svc-desc">subtle to full coverage, matched to your hair or preference</div>
+          </div>
+          <div class="svc-dur">90 min</div>
+        </div>
+      </div>
+
+    </div><!-- /right col -->
+  </div>
+
+  <!-- DETAILS: full width -->
+  <div style="padding:0 16px 60px;" class="reveal">
+    <div class="sec-eyebrow" style="margin-bottom:28px;">03 / Your Details</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+
+      <!-- Contact info -->
+      <div>
+        <div class="sel-svc" id="sel-svc">
+          <div class="sel-lbl">Selected Services</div>
+          <div id="sel-body"><span class="sel-empty">No services selected — browse the menu above</span></div>
+        </div>
+        <div class="f-field">
+          <label class="f-lbl">Name</label>
+          <input class="f-in" type="text" placeholder="Your name" id="f-name">
+        </div>
+        <div class="f-field">
+          <label class="f-lbl">Email</label>
+          <input class="f-in" type="email" placeholder="you@example.com" id="f-email">
+        </div>
+        <div class="f-field">
+          <label class="f-lbl">Phone</label>
+          <input class="f-in" type="tel" placeholder="+1 000 000 0000" id="f-phone">
+        </div>
+        <div class="f-field">
+          <label class="f-lbl">Instagram <span style="color:var(--muted);font-size:9px;text-transform:none;letter-spacing:0.04em">(optional)</span></label>
+          <input class="f-in" type="text" placeholder="@handle" id="f-instagram">
+        </div>
+        <div class="f-field">
+          <label class="f-lbl">Preferred Contact</label>
+          <select class="f-in f-select" id="f-contact">
+            <option value="" disabled selected>Choose one</option>
+            <option value="Email">Email</option>
+            <option value="Phone / SMS">Phone / SMS</option>
+            <option value="Instagram DM">Instagram DM</option>
+            <option value="WhatsApp">WhatsApp</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Notes + images + submit -->
+      <div>
+        <div class="f-field">
+          <label class="f-lbl">Notes / References</label>
+          <textarea class="f-ta" placeholder="Vision, references, hair history, or anything useful..." id="f-notes"></textarea>
+        </div>
+        <div class="f-field">
+          <label class="f-lbl">Inspo Pics <span style="color:var(--electric);font-size:8px;letter-spacing:0.03em;text-transform:none;font-style:italic;">(very helpful!)</span></label>
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('f-images').click()">
+            <input type="file" id="f-images" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="handleFiles(this.files)">
+            <div class="upload-icon">+ ADD IMAGES</div>
+          </div>
+          <div class="preview-grid" id="preview-grid"></div>
+        </div>
+
+        <div class="booking-notice">
+          <div class="notice-icon">◈</div>
+          <p>Two steps to complete your booking:<br><br>
+          <strong style="color:var(--steel-light);">Step 1</strong> — Select your services above. The calendar will automatically update to show available slots that fit your total appointment duration. Choose your date &amp; time there.<br><br>
+          <strong style="color:var(--steel-light);">Step 2</strong> — Fill in your details here and hit <em>Request Booking</em> so I have your preferences, inspo pics and contact info.</p>
+        </div>
+
+        <button class="btn-book" id="book-btn" disabled onclick="doBook()">Request Booking →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wood-band" style="height:12px;"></div>
+
+<footer>
+  <div class="foot-logo">Other<em>___</em>0.01</div>
+  <div class="foot-copy">© 2026 — All appointments by prior arrangement</div>
+</footer>
+
+<!-- CONFIRMATION OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="confirm-page">
+    <div class="confirm-header">
+      <span class="confirm-header-label">04 / CONFIRMATION</span>
+      <span class="confirm-ref" id="confirm-ref">REF #OTH-2026-0000</span>
+    </div>
+    <div class="confirm-banner">
+      <div class="confirm-banner-icon">✓</div>
+      <div>
+        <div class="confirm-banner-title">Booking Request Sent.</div>
+        <div class="confirm-banner-sub">Your booking request has been received. I'll reach out via your preferred contact method to confirm the appointment and discuss details.</div>
+      </div>
+    </div>
+    <div class="confirm-top">
+      <div class="confirm-sub">Pricing and location will be confirmed when I get in touch — usually within 24 hours. If you've included reference images, we may discuss those too.</div>
+    </div>
+    <div class="confirm-summary" id="modal-rows"></div>
+    <div class="confirm-notice">
+      <div class="cn-row"><span class="cn-icon">◈</span><span>Pricing and exact location will be confirmed when I reach out — usually within 24 hours.</span></div>
+      <div class="cn-row"><span class="cn-icon">◈</span><span>Please arrive on time. Late arrivals may result in a reduced service to respect the next client's appointment.</span></div>
+      <div class="cn-row"><span class="cn-icon">◈</span><span>If you need to cancel or reschedule, please give as much notice as possible.</span></div>
+    </div>
+    <button class="btn-cls" onclick="closeModal()">Close ×</button>
+  </div>
+</div>
+
+<!-- ADMIN OVERLAY (Shift+A+D+M) -->
+<div id="admin-overlay" style="display:none; position:fixed; inset:0; background:rgba(22,25,28,0.97); z-index:2000; align-items:center; justify-content:center;">
+  <div id="admin-login" style="background:var(--surface); border:1px solid var(--border); padding:40px; width:320px;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.2em; color:var(--electric); margin-bottom:20px;">ADMIN / ACCESS</div>
+    <input id="admin-pw" type="password" placeholder="Password" class="f-in" style="width:100%; margin-bottom:12px;" onkeydown="if(event.key==='Enter')adminLogin()">
+    <button onclick="adminLogin()" class="btn-book" style="margin-top:0;">Enter →</button>
+    <div id="admin-err" style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#ff4444; margin-top:10px; display:none;">Incorrect password</div>
+  </div>
+  <div id="admin-panel" style="display:none; background:var(--surface); border:1px solid var(--border); padding:40px; width:420px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.2em; color:var(--electric);">ADMIN</div>
+      <button onclick="closeAdmin()" style="background:none; border:none; color:var(--muted); font-size:18px; cursor:crosshair;">×</button>
+    </div>
+    <p style="font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.8; color:var(--muted); margin-bottom:24px;">Availability is managed directly in Acuity Scheduling. Log in to your dashboard to set hours, block dates, and manage appointments.</p>
+    <a href="https://acuityscheduling.com/login.php" target="_blank" class="btn-book" style="display:block; text-align:center; text-decoration:none;">Open Acuity Dashboard →</a>
+  </div>
+</div>
+
+<script>
+  // ─────────────────────────────────────────────────────────────
+  // ACUITY CONFIG
+  // ─────────────────────────────────────────────────────────────
+  const OWNER = '39321678';
+
+  // Individual service appointment type IDs (for single-service selections)
+  const SVC_TYPE = {
+    'Cut':                       93163054,
+    'Colour':                    93163562,
+    'Hair / Scalp Treatment':    93163577,
+    'Cold Perm':                 93163596,
+    'Gel Overlay + Nail Art':    93165338,
+    'Gel Extensions + Nail Art': 93165360,
+    'Hot Towel Shave':           93165398,
+    'Beard Shape + Trim':        93165411,
+    'Tint / Colour':             93165472,
+  };
+
+  // Session appointment type IDs — used when multiple services are selected.
+  // Keys are total duration in minutes; Acuity will show 30-min-increment slots
+  // that fit the session duration.
+  const SESSION_TYPE = {
+     90: 93170050,
+    150: 93170055,
+    180: 93170064,
+    240: 93170065,
+    360: 93170070,
+    420: 93170079,
+    480: 93170086,
+  };
+
+  // Available session durations in ascending order
+  const SESSION_STEPS = [90, 150, 180, 240, 360, 420, 480];
+
+  // ─────────────────────────────────────────────────────────────
+  // STATE
+  // ─────────────────────────────────────────────────────────────
+  const S = { svcs: [] };
+
+  // ─────────────────────────────────────────────────────────────
+  // HELPERS
+  // ─────────────────────────────────────────────────────────────
+  function getTotalDuration() {
+    return S.svcs.reduce((sum, s) => sum + s.dur, 0);
+  }
+
+  function formatDuration(mins) {
+    if (mins < 60) return mins + ' min';
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m ? `${h}h ${m}min` : `${h}h`;
+  }
+
+  // Returns the Acuity appointment type ID to use for the current selection.
+  // Single service → use its specific type ID.
+  // Multiple services → find the Session type whose duration >= total.
+  function resolveTypeId() {
+    const total = getTotalDuration();
+    if (total === 0) return SESSION_TYPE[90]; // default: show 90-min slots
+
+    if (S.svcs.length === 1 && SVC_TYPE[S.svcs[0].name]) {
+      return SVC_TYPE[S.svcs[0].name];
+    }
+
+    // Multi-service: round up to the next available session duration
+    for (const step of SESSION_STEPS) {
+      if (total <= step) return SESSION_TYPE[step];
+    }
+    return SESSION_TYPE[480]; // cap at 480 min
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // UPDATE ACUITY EMBED  (uses Acuity JS API for month_view layout)
+  // ─────────────────────────────────────────────────────────────
+  function updateAcuity() {
+    const typeId = resolveTypeId();
+    const total  = getTotalDuration();
+
+    // Duration badge
+    const badge = document.getElementById('duration-badge');
+    if (total > 0) {
+      document.getElementById('duration-text').textContent = formatDuration(total);
+      badge.classList.add('show');
+    } else {
+      badge.classList.remove('show');
+    }
+
+    // Clear previous embed and re-inject via Acuity JS API
+    const target = document.getElementById('acuity-embed-target');
+    target.innerHTML = '';
+
+    // Acuity embed.js exposes window.Acuity — use direct iframe URL approach
+    // but force month view via the calendarView param (schedule.php endpoint)
+    // and clip header/logo via CSS overflow on .acuity-wrap
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://app.acuityscheduling.com/schedule.php?owner=${OWNER}&appointmentType=${typeId}&calendarView=month`;
+    iframe.style.cssText = 'display:block;width:100%;border:none;height:1100px;';
+    iframe.setAttribute('frameborder', '0');
+    target.appendChild(iframe);
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // TABS
+  // ─────────────────────────────────────────────────────────────
+  function switchTab(cat, btn) {
+    document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + cat).classList.add('active');
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // SERVICE TOGGLE
+  // ─────────────────────────────────────────────────────────────
+  function pickSvc(rowEl, name, cat, dur) {
+    const idx = S.svcs.findIndex(s => s.name === name);
+    if (idx > -1) {
+      S.svcs.splice(idx, 1);
+      rowEl.classList.remove('sel');
+    } else {
+      S.svcs.push({ name, cat, dur });
+      rowEl.classList.add('sel');
+    }
+    renderSelPanel();
+    updateAcuity();
+    validate();
+  }
+
+  function removeSvc(name) {
+    S.svcs = S.svcs.filter(s => s.name !== name);
+    // Uncheck the corresponding row
+    document.querySelectorAll('.svc-row').forEach(r => {
+      const el = r.querySelector('.svc-name');
+      if (el) {
+        const rowName = el.textContent.replace('✃','').trim();
+        if (rowName === name) r.classList.remove('sel');
+      }
+    });
+    renderSelPanel();
+    updateAcuity();
+    validate();
+  }
+
+  function renderSelPanel() {
+    const body = document.getElementById('sel-body');
+    if (S.svcs.length === 0) {
+      body.innerHTML = '<span class="sel-empty">No services selected — browse the menu above</span>';
+      return;
+    }
+    const total = getTotalDuration();
+    const items = S.svcs.map(s => `
+      <div class="sel-item">
+        <div class="sel-item-name">${s.name}</div>
+        <div class="sel-item-dur">${formatDuration(s.dur)}</div>
+        <button class="sel-remove" onclick="removeSvc(${JSON.stringify(s.name)})">×</button>
+      </div>
+    `).join('');
+    body.innerHTML = `
+      <div class="sel-list">${items}</div>
+      <div class="sel-total">
+        <span class="sel-total-lbl">Total Duration</span>
+        <span class="sel-total-val">${formatDuration(total)}</span>
+      </div>
+    `;
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // VALIDATE
+  // ─────────────────────────────────────────────────────────────
+  function validate() {
+    const ok = S.svcs.length > 0
+      && document.getElementById('f-name').value.trim()
+      && document.getElementById('f-email').value.trim();
+    document.getElementById('book-btn').disabled = !ok;
+  }
+  document.getElementById('f-name').addEventListener('input', validate);
+  document.getElementById('f-email').addEventListener('input', validate);
+
+  // ─────────────────────────────────────────────────────────────
+  // SUBMIT
+  // ─────────────────────────────────────────────────────────────
+  function doBook() {
+    const name      = document.getElementById('f-name').value.trim();
+    const email     = document.getElementById('f-email').value.trim();
+    const phone     = document.getElementById('f-phone').value.trim();
+    const instagram = document.getElementById('f-instagram').value.trim();
+    const contact   = document.getElementById('f-contact').value;
+    const notes     = document.getElementById('f-notes').value.trim();
+    if (!name || !email) { alert('Please enter your name and email.'); return; }
+
+    const ig    = instagram ? (instagram.startsWith('@') ? instagram : '@' + instagram) : null;
+    const total = getTotalDuration();
+
+    document.getElementById('modal-rows').innerHTML = `
+      <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);">
+        <span>Services</span><span>${S.svcs.map(s => s.name).join(', ')}</span>
+      </div>
+      <div class="m-row"><span>Total Duration</span><span>${formatDuration(total)}</span></div>
+      <div class="m-row" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(212,216,220,0.08);">
+        <span>Name</span><span>${name}</span>
+      </div>
+      <div class="m-row"><span>Email</span><span>${email}</span></div>
+      ${phone ? `<div class="m-row"><span>Phone</span><span>${phone}</span></div>` : ''}
+      ${ig    ? `<div class="m-row"><span>Instagram</span><span>${ig}</span></div>` : ''}
+      ${contact ? `<div class="m-row"><span>Contact via</span><span>${contact}</span></div>` : ''}
+      ${attachedFiles.length > 0 ? `<div class="m-row"><span>Inspo Pics</span><span>${attachedFiles.length} image${attachedFiles.length>1?'s':''} attached</span></div>` : ''}
+      ${notes ? `<div class="m-row"><span>Notes</span><span style="max-width:260px;">${notes}</span></div>` : ''}
+    `;
+
+    const now = new Date();
+    document.getElementById('confirm-ref').textContent =
+      `REF #OTH-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+    document.getElementById('overlay').classList.add('show');
+  }
+
+  function closeModal() { document.getElementById('overlay').classList.remove('show'); }
+
+  // ─────────────────────────────────────────────────────────────
+  // IMAGE UPLOAD
+  // ─────────────────────────────────────────────────────────────
+  let attachedFiles = [];
+
+  function handleFiles(incoming) {
+    Array.from(incoming).filter(f => f.type.startsWith('image/')).forEach(f => {
+      attachedFiles.push(f);
+      addPreview(f, attachedFiles.length - 1);
+    });
+  }
+
+  function addPreview(file, idx) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const item = document.createElement('div');
+      item.className = 'preview-item';
+      item.dataset.idx = idx;
+      item.innerHTML = `<img src="${e.target.result}" alt="ref"><button class="preview-remove" onclick="removeFile(${idx})">×</button>`;
+      document.getElementById('preview-grid').appendChild(item);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeFile(idx) {
+    attachedFiles[idx] = null;
+    const el = document.querySelector(`.preview-item[data-idx="${idx}"]`);
+    if (el) el.remove();
+    attachedFiles = attachedFiles.filter(Boolean);
+    document.querySelectorAll('.preview-item').forEach((el, i) => {
+      el.dataset.idx = i;
+      el.querySelector('.preview-remove').setAttribute('onclick', `removeFile(${i})`);
+    });
+  }
+
+  const dz = document.getElementById('upload-zone');
+  dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', ()  => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // REVEAL ANIMATIONS
+  // ─────────────────────────────────────────────────────────────
+  const obs = new IntersectionObserver(
+    entries => entries.forEach(x => { if (x.isIntersecting) x.target.classList.add('in'); }),
+    { threshold: 0.1 }
+  );
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // ─────────────────────────────────────────────────────────────
+  // ADMIN (Shift+A+D+M)
+  // ─────────────────────────────────────────────────────────────
+  const ADMIN_PW  = 'other001';
+  const adminKeys = new Set();
+
+  document.addEventListener('keydown', e => {
+    adminKeys.add(e.key.toLowerCase());
+    if (['shift','a','d','m'].every(k => adminKeys.has(k))) { openAdmin(); adminKeys.clear(); }
+  });
+  document.addEventListener('keyup', e => adminKeys.delete(e.key.toLowerCase()));
+
+  function openAdmin() {
+    document.getElementById('admin-overlay').style.display = 'flex';
+    document.getElementById('admin-login').style.display  = 'block';
+    document.getElementById('admin-panel').style.display  = 'none';
+    document.getElementById('admin-err').style.display    = 'none';
+    document.getElementById('admin-pw').value = '';
+    document.getElementById('admin-pw').focus();
+  }
+  function adminLogin() {
+    if (document.getElementById('admin-pw').value === ADMIN_PW) {
+      document.getElementById('admin-login').style.display = 'none';
+      document.getElementById('admin-panel').style.display = 'block';
+    } else {
+      document.getElementById('admin-err').style.display = 'block';
+    }
+  }
+  function closeAdmin() { document.getElementById('admin-overlay').style.display = 'none'; }
+
+  // Init — load Acuity embed.js then render
+  (function() {
+    const s = document.createElement('script');
+    s.src = 'https://embed.acuityscheduling.com/js/embed.js';
+    s.onload = () => updateAcuity();
+    document.head.appendChild(s);
+  })();
+</script>
+</body>
+</html>
