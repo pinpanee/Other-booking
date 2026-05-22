@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5">
+<title>Booking Request — Other___0.01</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Syne+Mono&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --steel-light: #d4d8dc;
+    --steel-mid:   #8a9199;
+    --steel-dark:  #3a3f45;
+    --steel-deep:  #1c1f22;
+    --steel-shine: #eef0f2;
+    --wood-light:  #c8a97e;
+    --wood-mid:    #9b7a52;
+    --wood-dark:   #5c3d1e;
+    --electric:    #0a6fff;
+    --electric-glow: rgba(10,111,255,0.35);
+    --electric-dim:  rgba(10,111,255,0.12);
+    --bg:          #16191c;
+    --surface:     #1e2226;
+    --border:      rgba(212,216,220,0.1);
+    --border-wood: rgba(200,169,126,0.2);
+    --text:        #d4d8dc;
+    --muted:       rgba(212,216,220,0.45);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'IBM Plex Mono', monospace; cursor: crosshair; }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+    background:
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.013) 2px, rgba(255,255,255,0.013) 3px),
+      repeating-linear-gradient(180deg, transparent, transparent 60px, rgba(255,255,255,0.007) 60px, rgba(255,255,255,0.007) 61px);
+  }
+  body::after {
+    content: ''; position: fixed; inset: -50%; width: 200%; height: 200%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9997; opacity: 0.4; animation: grain 0.8s steps(1) infinite;
+  }
+  @keyframes grain {
+    0%  { transform: translate(0,0); }    25% { transform: translate(-2%,-4%); }
+    50% { transform: translate(-5%,2%); } 75% { transform: translate(3%,-1%); }
+    100%{ transform: translate(2%,-3%); }
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed; top:0; left:0; right:0; z-index: 500; height: 64px;
+    display: flex; justify-content: space-between; align-items: center; padding: 0 16px;
+    background: rgba(22,25,28,0.84); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border);
+  }
+  header::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(255,255,255,0.04) 0%,transparent 100%); pointer-events:none; }
+  .logo { font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:16px; letter-spacing:-0.02em; color:var(--steel-shine); position:relative; z-index:1; }
+  .logo em { font-style:normal; color:var(--electric); text-shadow:0 0 14px var(--electric-glow); }
+  nav { display:flex; gap:36px; position:relative; z-index:1; }
+  nav a { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  nav a:hover { color:var(--electric); }
+  .header-appt { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.25em; text-transform:uppercase; color:var(--muted); position:relative; z-index:1; }
+
+  /* ── WOOD BAND ── */
+  .wood-band { height:10px; background:linear-gradient(90deg,var(--wood-dark) 0%,var(--wood-mid) 20%,var(--wood-light) 45%,var(--wood-mid) 70%,var(--wood-dark) 100%); position:relative; overflow:hidden; }
+  .wood-band::after { content:''; position:absolute; inset:0; background:repeating-linear-gradient(89deg,transparent,transparent 7px,rgba(0,0,0,0.14) 7px,rgba(0,0,0,0.14) 8px); }
+
+  .sec-eyebrow { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--electric); margin-bottom:12px; }
+
+  /* ── CALENDAR ── */
+  .cal-wrap { border:1px solid var(--border); overflow:hidden; background:var(--surface); box-shadow:0 0 40px rgba(0,0,0,0.3); position:relative; }
+  .cal-wrap::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,0.04) 0%,transparent 50%); pointer-events:none; z-index:1; }
+
+  .cal-nav { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); position:relative; z-index:2; }
+  .cal-title { display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .cal-month-name { font-family:'DM Serif Display',serif; font-size:18px; color:var(--steel-shine); }
+  .cal-year { font-family:'Syne Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.15em; }
+  .cal-arr { background:none; border:1px solid var(--border); color:var(--text); width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:crosshair; font-size:13px; transition:all 0.2s; font-family:monospace; }
+  .cal-arr:hover { border-color:var(--electric); color:var(--electric); box-shadow:0 0 12px var(--electric-dim); }
+
+  .cal-dnames { display:grid; grid-template-columns:repeat(7,1fr); border-bottom:1px solid var(--border); position:relative; z-index:2; }
+  .cal-dn { text-align:center; padding:10px 2px; font-family:'Syne Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); }
+
+  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); position:relative; z-index:2; }
+  .c-cell { aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:12px; font-family:'Syne Mono',monospace; cursor:crosshair; transition:all 0.15s; border:1px solid transparent; position:relative; color:var(--text); }
+  .c-cell.other { color:rgba(212,216,220,0.16); cursor:default; }
+  .c-cell.past  { color:rgba(212,216,220,0.18); cursor:default; }
+  .c-cell.blocked { color:rgba(212,216,220,0.22); cursor:not-allowed; background:rgba(212,216,220,0.04); }
+  .c-cell.today { color:var(--electric); }
+  .c-cell.today::after { content:''; position:absolute; bottom:4px; left:50%; transform:translateX(-50%); width:3px; height:3px; background:var(--electric); border-radius:50%; box-shadow:0 0 6px var(--electric); }
+  .c-cell.avail:hover { background:rgba(10,111,255,0.1); border-color:var(--electric-dim); color:var(--electric); }
+  .c-cell.picked { background:var(--electric); color:#fff; box-shadow:0 0 20px var(--electric-glow); font-weight:700; }
+
+  /* cal loading state */
+  .cal-loading { display:flex; align-items:center; justify-content:center; gap:10px; padding:20px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.1em; border-top:1px solid var(--border); }
+  .cal-dot { width:5px; height:5px; background:var(--electric); border-radius:50%; animation:caldot 1.2s ease-in-out infinite; }
+  .cal-dot:nth-child(2) { animation-delay:0.2s; }
+  .cal-dot:nth-child(3) { animation-delay:0.4s; }
+  @keyframes caldot { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+
+  /* ── SLOTS — inside cal-wrap, inherits its width ── */
+  .slots-sec { padding:8px 0 0; display:none; }
+  .slots-sec.visible { display:block; }
+  .slots-lbl { font-family:'Syne Mono',monospace; font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+  .slots-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; }
+  .slot { padding:9px 2px; text-align:center; font-family:'Syne Mono',monospace; font-size:11px; border:1px solid var(--border); background:none; color:var(--text); cursor:crosshair; transition:all 0.15s; }
+  .slot:hover { border-color:var(--electric); color:var(--electric); box-shadow:0 0 10px var(--electric-dim); }
+  .slot.picked { background:var(--electric); color:#fff; border-color:var(--electric); box-shadow:0 0 16px var(--electric-glow); }
+  .slot.off { opacity:0.2; cursor:not-allowed; pointer-events:none; }
+
+  /* ── MENU TABS ── */
+  .menu-tabs { display:flex; gap:0; border:1px solid var(--border); margin-bottom:1px; }
+  .menu-tab { flex:1; padding:9px 8px; background:none; border:none; border-right:1px solid var(--border); color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:13px; cursor:crosshair; transition:all 0.2s; }
+  .menu-tab:last-child { border-right:none; }
+  .menu-tab:hover { color:var(--steel-shine); background:rgba(255,255,255,0.03); }
+  .menu-tab.active { color:#fff; background:var(--electric); }
+  .menu-panel { display:none; border:1px solid var(--border); border-top:none; overflow:hidden; }
+  .menu-panel.active { display:block; }
+
+  /* ── SERVICE ROWS ── */
+  .svc-row { padding:10px 12px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; cursor:crosshair; transition:background 0.2s; position:relative; gap:16px; overflow:hidden; }
+  .svc-row::after { content:''; position:absolute; left:0; top:0; bottom:0; width:2px; background:var(--electric); box-shadow:0 0 8px var(--electric-glow); transform:scaleY(0); transition:transform 0.2s; transform-origin:bottom; }
+  .svc-row:last-child { border-bottom:none; }
+  .svc-row:hover { background:rgba(10,111,255,0.06); }
+  .svc-row:hover::after { transform:scaleY(1); }
+  .svc-row.sel { background:rgba(10,111,255,0.11); }
+  .svc-row.sel::after { transform:scaleY(1); }
+  .svc-check { width:16px; height:16px; border:1px solid var(--steel-mid); flex-shrink:0; position:relative; transition:all 0.15s; margin-top:1px; }
+  .svc-row.sel .svc-check { background:var(--electric); border-color:var(--electric); box-shadow:0 0 8px var(--electric-glow); }
+  .svc-row.sel .svc-check::after { content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; font-family:'IBM Plex Mono',monospace; }
+  .svc-row:hover .svc-check { border-color:var(--electric); }
+  .svc-body { flex:1; min-width:0; }
+  .svc-name { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px; color:var(--steel-shine); margin-bottom:4px; text-transform:uppercase; }
+  .svc-tag  { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--electric); margin-bottom:3px; }
+  .svc-desc { font-family:'IBM Plex Mono',monospace; font-size:8px; font-style:italic; color:var(--muted); line-height:1.3; }
+
+  /* ── SELECTED PANEL ── */
+  .sel-svc { border:1px solid var(--border); border-left:2px solid var(--electric); padding:18px 22px; margin-bottom:24px; background:var(--electric-dim); min-height:72px; box-shadow:0 0 20px rgba(10,111,255,0.08); }
+  .sel-lbl { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+  .sel-empty { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); }
+  .sel-list { display:flex; flex-direction:column; gap:0; }
+  .sel-item { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid rgba(212,216,220,0.07); gap:8px; }
+  .sel-item:last-child { border-bottom:none; }
+  .sel-item-name { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--steel-shine); flex:1; }
+  .sel-remove { background:none; border:none; color:var(--muted); font-size:14px; cursor:crosshair; padding:2px 4px; line-height:1; transition:color 0.15s; }
+  .sel-remove:hover { color:#ff4444; }
+  .sel-total { margin-top:12px; padding-top:10px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .sel-total-lbl { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); }
+  .sel-total-val { font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:14px; color:var(--electric); text-shadow:0 0 10px var(--electric-glow); }
+
+  /* ── FORM ── */
+  .f-field { margin-bottom:16px; }
+  .f-lbl { display:block; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
+  .f-in,.f-ta { width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:13px; padding:12px 15px; outline:none; transition:border-color 0.2s,box-shadow 0.2s; cursor:crosshair; }
+  .f-in::placeholder,.f-ta::placeholder { color:rgba(212,216,220,0.2); }
+  .f-in:focus,.f-ta:focus { border-color:var(--electric); box-shadow:0 0 16px var(--electric-dim); }
+  .f-ta { resize:vertical; min-height:96px; }
+  .f-select { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(212,216,220,0.4)'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; cursor:crosshair; }
+  .f-select option { background:var(--surface); color:var(--text); }
+
+  /* ── NOTICE ── */
+  .booking-notice { display:flex; gap:14px; align-items:flex-start; border:1px solid var(--border-wood); background:rgba(200,169,126,0.05); padding:18px 20px; margin-bottom:20px; margin-top:4px; }
+  .notice-icon { color:var(--wood-light); font-size:16px; flex-shrink:0; margin-top:1px; opacity:0.8; }
+  .booking-notice p { font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.85; color:var(--muted); letter-spacing:0.02em; }
+
+  /* ── BUTTONS ── */
+  .btn-book { width:100%; padding:17px 32px; background:var(--electric); color:#fff; font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:13px; letter-spacing:0.1em; text-transform:uppercase; border:none; cursor:crosshair; position:relative; overflow:hidden; transition:all 0.25s; margin-top:8px; box-shadow:0 0 32px var(--electric-glow); }
+  .btn-book::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); transform:translateX(-100%); transition:transform 0.5s; }
+  .btn-book:hover::before { transform:translateX(100%); }
+  .btn-book:hover { box-shadow:0 0 48px var(--electric-glow); transform:translateY(-1px); }
+  .btn-book:disabled { opacity:0.28; cursor:not-allowed; transform:none; box-shadow:none; }
+
+  /* ── UPLOAD ── */
+  .upload-zone { border:1px dashed rgba(212,216,220,0.2); padding:28px 20px; text-align:center; cursor:crosshair; transition:all 0.2s; background:var(--surface); display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100px; }
+  .upload-zone:hover,.upload-zone.drag-over { border-color:var(--electric); background:var(--electric-dim); box-shadow:0 0 20px var(--electric-dim); }
+  .upload-icon { font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; color:var(--electric); letter-spacing:0.15em; margin-bottom:8px; }
+  .preview-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:8px; }
+  .preview-item { position:relative; aspect-ratio:1; overflow:hidden; border:1px solid var(--border); }
+  .preview-item img { width:100%; height:100%; object-fit:cover; display:block; }
+  .preview-remove { position:absolute; top:3px; right:3px; width:18px; height:18px; background:rgba(10,10,10,0.85); border:none; color:#fff; font-size:11px; display:flex; align-items:center; justify-content:center; cursor:crosshair; opacity:0; transition:opacity 0.15s; }
+  .preview-item:hover .preview-remove { opacity:1; }
+
+  /* ── OVERLAY ── */
+  .overlay { position:fixed; inset:0; background:rgba(22,25,28,0.93); backdrop-filter:blur(12px); z-index:1000; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+  .overlay.show { opacity:1; pointer-events:all; }
+  .confirm-page { background:var(--bg); width:100%; max-width:640px; max-height:90vh; overflow-y:auto; border:1px solid var(--border); transform:translateY(16px); transition:transform 0.35s; box-shadow:0 0 80px rgba(10,111,255,0.15); }
+  .overlay.show .confirm-page { transform:translateY(0); }
+  .confirm-header { display:flex; justify-content:space-between; align-items:center; padding:20px 28px; border-bottom:1px solid var(--border); }
+  .confirm-header-label { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.25em; color:var(--electric); }
+  .confirm-ref { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); border:1px solid var(--border); padding:6px 12px; }
+  .confirm-banner { display:flex; align-items:flex-start; gap:16px; margin:20px 28px; padding:20px; background:rgba(10,111,255,0.08); border:1px solid rgba(10,111,255,0.25); }
+  .confirm-banner-icon { width:36px; height:36px; background:var(--electric); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; color:#fff; flex-shrink:0; box-shadow:0 0 16px var(--electric-glow); }
+  .confirm-banner-title { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:15px; color:var(--steel-shine); margin-bottom:8px; }
+  .confirm-banner-sub { font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.7; color:var(--muted); }
+  .confirm-top { padding:20px 28px; border-bottom:1px solid var(--border); }
+  .confirm-sub { font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.8; color:var(--muted); }
+  .confirm-summary { padding:28px; border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:10px; }
+  .confirm-notice { padding:28px; border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:16px; }
+  .cn-row { display:flex; gap:14px; align-items:flex-start; font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.7; color:var(--muted); }
+  .cn-icon { color:var(--wood-light); flex-shrink:0; }
+  .m-row { display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:12px; gap:16px; }
+  .m-row span:first-child { color:var(--muted); flex-shrink:0; }
+  .m-row span:last-child  { color:var(--steel-shine); text-align:right; }
+  .btn-cls { display:block; width:100%; background:none; border:none; border-top:1px solid var(--border); color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11px; padding:20px; cursor:crosshair; letter-spacing:0.1em; transition:all 0.2s; text-align:center; }
+  .btn-cls:hover { color:var(--electric); background:var(--electric-dim); }
+
+  /* ── REVEAL ── */
+  .reveal { opacity:0; transform:translateY(20px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in { opacity:1; transform:translateY(0); }
+
+  /* ── FOOTER ── */
+  footer { border-top:1px solid var(--border); padding:24px 16px; display:flex; justify-content:space-between; align-items:center; background:var(--surface); }
+  .foot-logo { font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:15px; color:var(--steel-shine); }
+  .foot-logo em { font-style:normal; color:var(--electric); text-shadow:0 0 10px var(--electric-glow); }
+  .foot-copy { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.1em; }
+
+  /* ── LAYOUT GRIDS ── */
+  .booking-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 76px 8px 32px;
+    align-items: start;
+  }
+  .details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 600px) {
+    .confirm-page { margin: 8px; max-height: 95vh; }
+    .confirm-top,.confirm-summary,.confirm-notice { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Other<em>___</em>0.01</div>
+  <div class="header-appt">BY APPOINTMENT ONLY</div>
+  <nav><a href="#booking">Book</a></nav>
+</header>
+
+<section id="booking" style="padding-top:64px; padding-bottom:0;">
+  <div class="booking-grid">
+
+    <!-- LEFT: BUILT-IN CALENDAR -->
+    <div class="reveal" style="min-width:0;">
+      <div class="sec-eyebrow">01 / Availability</div>
+
+      <div class="cal-wrap">
+        <div class="cal-nav">
+          <button class="cal-arr" onclick="shiftMo(-1)">‹</button>
+          <div class="cal-title">
+            <span class="cal-month-name" id="cal-label-month">—</span>
+            <span class="cal-year" id="cal-label-year">—</span>
+          </div>
+          <button class="cal-arr" onclick="shiftMo(1)">›</button>
+        </div>
+        <div class="cal-dnames">
+          <div class="cal-dn">Su</div><div class="cal-dn">Mo</div><div class="cal-dn">Tu</div>
+          <div class="cal-dn">We</div><div class="cal-dn">Th</div><div class="cal-dn">Fr</div><div class="cal-dn">Sa</div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="cal-loading" id="cal-loading">
+          <div class="cal-dot"></div><div class="cal-dot"></div><div class="cal-dot"></div>
+          <span>Loading availability…</span>
+        </div>
+      </div>
+
+      <!-- Sheet sync status + manual refresh -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin:6px 0 4px; padding:0 2px;">
+        <span id="sheet-status" style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.1em; color:var(--muted);">↻ Syncing…</span>
+        <button onclick="fetchBlockedDates()" style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; background:none; border:1px solid var(--border); color:var(--muted); padding:4px 10px; cursor:crosshair; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--electric)';this.style.color='var(--electric)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">↻ Refresh</button>
+      </div>
+
+      <div class="slots-sec" id="slots-sec">
+        <div class="slots-lbl" id="slots-lbl">Available Times</div>
+        <div class="slots-grid" id="slots-grid"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: MENU -->
+    <div class="reveal" style="min-width:0;">
+      <div class="sec-eyebrow">02 / Menu</div>
+      <div class="menu-tabs">
+        <button class="menu-tab active" onclick="switchTab('hair',this)">HAIR</button>
+        <button class="menu-tab" onclick="switchTab('nails',this)">NAILS</button>
+        <button class="menu-tab" onclick="switchTab('beards',this)">BEARDS</button>
+      </div>
+
+      <!-- HAIR -->
+      <div class="menu-panel active" id="panel-hair">
+        <div class="svc-row" onclick="pickSvc(this,'Cut','Hair',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Cut ✃</div><div class="svc-desc">tailored precision cuts</div></div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Colour','Hair',180)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Colour</div><div class="svc-desc">full colour, highlights or creative work — let's discuss!</div></div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Hair / Scalp Treatment','Hair',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Hair / Scalp Treatment</div><div class="svc-desc">targeted care for hair and scalp health</div></div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Cold Perm','Hair',180)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Cold Perm</div><div class="svc-desc">add waves, texture &amp; volume</div></div>
+        </div>
+      </div>
+
+      <!-- NAILS -->
+      <div class="menu-panel" id="panel-nails">
+        <div class="svc-row" onclick="pickSvc(this,'Gel Overlay + Nail Art','Nails',150)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Gel Overlay + Nail Art</div><div class="svc-tag">Natural Nail</div><div class="svc-desc">strengthen your natural nails with builder gel</div></div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Gel Extensions + Nail Art','Nails',240)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Gel Extensions + Nail Art</div><div class="svc-tag">Extensions</div><div class="svc-desc">show me your nail inspo!</div></div>
+        </div>
+      </div>
+
+      <!-- BEARDS -->
+      <div class="menu-panel" id="panel-beards">
+        <div class="svc-row" onclick="pickSvc(this,'Hot Towel Shave','Beards',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Hot Towel Shave</div><div class="svc-desc">traditional straight razor shave</div></div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Beard Shape + Trim','Beards',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Beard Shape + Trim</div><div class="svc-desc">defined lines &amp; balanced shape</div></div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Tint / Colour','Beards',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Tint / Colour</div><div class="svc-desc">subtle to full coverage</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DETAILS -->
+  <div style="padding:0 8px 40px;" class="reveal">
+    <div class="sec-eyebrow" style="margin-bottom:28px;">03 / Your Details</div>
+    <div class="details-grid">
+      <div>
+        <div class="sel-svc">
+          <div class="sel-lbl">Selected Services</div>
+          <div id="sel-body"><span class="sel-empty">No services selected — browse the menu above</span></div>
+        </div>
+        <div class="f-field"><label class="f-lbl">Name</label><input class="f-in" type="text" placeholder="Your name" id="f-name"></div>
+        <div class="f-field"><label class="f-lbl">Email</label><input class="f-in" type="email" placeholder="you@example.com" id="f-email"></div>
+        <div class="f-field"><label class="f-lbl">Phone</label><input class="f-in" type="tel" placeholder="+66 000 000 0000" id="f-phone"></div>
+        <div class="f-field"><label class="f-lbl">Instagram <span style="color:var(--muted);font-size:9px;text-transform:none;">(optional)</span></label><input class="f-in" type="text" placeholder="@handle" id="f-instagram"></div>
+        <div class="f-field">
+          <label class="f-lbl">Preferred Contact</label>
+          <select class="f-in f-select" id="f-contact">
+            <option value="" disabled selected>Choose one</option>
+            <option value="Email">Email</option>
+            <option value="Phone / SMS">Phone / SMS</option>
+            <option value="Instagram DM">Instagram DM</option>
+            <option value="WhatsApp">WhatsApp</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <div class="f-field"><label class="f-lbl">Notes / References</label><textarea class="f-ta" placeholder="Vision, references, hair history, or anything useful..." id="f-notes"></textarea></div>
+        <div class="f-field">
+          <label class="f-lbl">Inspo Pics <span style="color:var(--electric);font-size:8px;font-style:italic;text-transform:none;">(very helpful!)</span></label>
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('f-images').click()">
+            <input type="file" id="f-images" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="handleFiles(this.files)">
+            <div class="upload-icon">+ ADD IMAGES</div>
+          </div>
+          <div class="preview-grid" id="preview-grid"></div>
+        </div>
+        <div class="booking-notice">
+          <div class="notice-icon">◈</div>
+          <p>Two steps to complete your booking:<br><br>
+          <strong style="color:var(--steel-light);">Step 1</strong> — Select your services, pick a date from the calendar and choose a time slot.<br><br>
+          <strong style="color:var(--steel-light);">Step 2</strong> — Fill in your details and hit <em>Request Booking</em> so I have your preferences and contact info.</p>
+        </div>
+        <button class="btn-book" id="book-btn" disabled onclick="doBook()">Request Booking →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wood-band" style="height:12px;"></div>
+
+<footer>
+  <div class="foot-logo">Other<em>___</em>0.01</div>
+  <div class="foot-copy">© 2026 — All appointments by prior arrangement</div>
+</footer>
+
+<!-- CONFIRMATION OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="confirm-page">
+    <div class="confirm-header">
+      <span class="confirm-header-label">04 / CONFIRMATION</span>
+      <span class="confirm-ref" id="confirm-ref">REF #OTH-2026-0000</span>
+    </div>
+    <div class="confirm-banner">
+      <div class="confirm-banner-icon">✓</div>
+      <div>
+        <div class="confirm-banner-title">Booking Request Sent.</div>
+        <div class="confirm-banner-sub">Your request has been received. I'll reach out via your preferred contact method to confirm the appointment.</div>
+      </div>
+    </div>
+    <div class="confirm-top">
+      <div class="confirm-sub">Pricing and location will be confirmed when I get in touch — usually within 24 hours.</div>
+    </div>
+    <div class="confirm-summary" id="modal-rows"></div>
+    <div class="confirm-notice">
+      <div class="cn-row"><span class="cn-icon">◈</span><span>Pricing and exact location confirmed within 24 hours.</span></div>
+      <div class="cn-row"><span class="cn-icon">◈</span><span>Please arrive on time. Late arrivals may result in a reduced service.</span></div>
+      <div class="cn-row"><span class="cn-icon">◈</span><span>If you need to cancel or reschedule, please give as much notice as possible.</span></div>
+    </div>
+    <button class="btn-cls" onclick="closeModal()">Close ×</button>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// GOOGLE SHEETS BLOCKED DATES + SLOTS
+// Sheet columns: Date (DD-MM-YYYY) | Start (HH:MM) | End (HH:MM)
+// Leave Start/End blank for a full-day block.
+// The sheet is fetched live on every page load — just update the
+// sheet and the booking calendar reflects it within seconds.
+// ─────────────────────────────────────────────────────────────
+
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSNh5Yp0U9nVGibNS3R7FG4Fb3_Cfi8n7YeqnLpTJ9HhELHo2aCSdaRgsKe-VvYH3IPvBP3mkjZF9nK/pub?gid=0&single=true&output=csv';
+
+// Full-day blocked dates — populated from sheet (YYYY-MM-DD)
+let BLOCKED_DATES = new Set();
+
+// Partial-day blocks — populated from sheet
+// Format: { 'YYYY-MM-DD': [[startMins, endMins], ...] }
+const BLOCKED_SLOTS = {};
+
+// Parse DD-MM-YYYY → YYYY-MM-DD
+function parseSheetDate(raw) {
+  if (!raw) return null;
+  raw = raw.trim();
+  // Support DD-MM-YYYY, DD/MM/YYYY, D-M-YYYY etc.
+  const m = raw.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+  if (!m) return null;
+  const [, d, mo, y] = m;
+  return `${y}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
+}
+
+// Parse HH:MM or HH.MM → total minutes from midnight
+function parseTime(raw) {
+  if (!raw || !raw.trim()) return null;
+  const m = raw.trim().match(/^(\d{1,2})[:\.](\d{2})$/);
+  if (!m) return null;
+  return parseInt(m[1]) * 60 + parseInt(m[2]);
+}
+
+// Parse CSV text → array of row arrays
+function parseCSV(text) {
+  return text.trim().split('\n').map(row =>
+    row.split(',').map(cell => cell.replace(/^"|"$/g, '').trim())
+  );
+}
+
+// Multiple CORS proxies to try in order
+const CORS_PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  url => `https://cors-anywhere.herokuapp.com/${url}`,
+];
+
+async function fetchWithCORSFallback(url) {
+  // Try direct first (works when hosted)
+  try {
+    const r = await fetch(url, { signal: AbortSignal.timeout(4000) });
+    if (r.ok) return r;
+  } catch(e) {}
+
+  // Try each proxy in turn
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const r = await fetch(proxy(url), { signal: AbortSignal.timeout(5000) });
+      if (r.ok) return r;
+    } catch(e) {}
+  }
+  return null;
+}
+
+function applyCSV(text) {
+  const rows = parseCSV(text);
+  BLOCKED_DATES.clear();
+  Object.keys(BLOCKED_SLOTS).forEach(k => delete BLOCKED_SLOTS[k]);
+
+  for (let i = 1; i < rows.length; i++) {
+    const [rawDate, rawStart, rawEnd] = rows[i];
+    const dk = parseSheetDate(rawDate);
+    if (!dk) continue;
+    const startMins = parseTime(rawStart);
+    const endMins   = parseTime(rawEnd);
+    if (startMins !== null && endMins !== null) {
+      if (!BLOCKED_SLOTS[dk]) BLOCKED_SLOTS[dk] = [];
+      BLOCKED_SLOTS[dk].push([startMins, endMins]);
+    } else {
+      BLOCKED_DATES.add(dk);
+    }
+  }
+
+  buildCal();
+  // Rebuild slots if a date is already selected
+  if (S.date) buildSlots();
+  setSheetStatus('synced');
+}
+
+function setSheetStatus(state) {
+  const el = document.getElementById('sheet-status');
+  if (!el) return;
+  if (state === 'loading') { el.textContent = '↻ Syncing…'; el.style.color = 'var(--muted)'; }
+  if (state === 'synced')  { el.textContent = '✓ Up to date'; el.style.color = 'var(--electric)'; }
+  if (state === 'error')   { el.textContent = '⚠ Could not sync'; el.style.color = '#ff6b6b'; }
+}
+
+async function fetchBlockedDates() {
+  setSheetStatus('loading');
+  document.getElementById('cal-loading').style.display = 'flex';
+  try {
+    const res = await fetchWithCORSFallback(SHEET_CSV_URL);
+    if (!res) throw new Error('All fetch methods failed');
+    const text = await res.text();
+    applyCSV(text);
+  } catch(e) {
+    console.warn('Sheet sync failed:', e.message);
+    setSheetStatus('error');
+  } finally {
+    document.getElementById('cal-loading').style.display = 'none';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+const ALL_SLOTS = [
+  '11:00','11:30',
+  '13:00','13:30','14:00','14:30','15:00','15:30',
+  '16:00','16:30','17:00','17:30','18:00','18:30','19:00'
+];
+const CLOSE_MINS = 21 * 60; // studio closes 9pm — last appt starts 19:00, can run until 21:00
+
+const S = {
+  svcs: [], date: null, time: null,
+  mo: new Date().getMonth(), yr: new Date().getFullYear()
+};
+
+// ─────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────
+function getTotalDuration() { return S.svcs.reduce((s, x) => s + x.dur, 0); }
+
+function formatDuration(m) {
+  if (m < 60) return m + ' min';
+  const h = Math.floor(m / 60), r = m % 60;
+  return r ? `${h}h ${r}min` : `${h}h`;
+}
+
+function dateKey(y, m, d) {
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+
+function slotToMins(t) { const [h,m] = t.split(':').map(Number); return h*60+m; }
+
+function getAvailableSlots() {
+  const total = getTotalDuration() || 90;
+  // Get any booked windows for the selected date
+  const dateStr = S.date ? dateKey(S.date.getFullYear(), S.date.getMonth(), S.date.getDate()) : null;
+  const bookedWindows = (dateStr && BLOCKED_SLOTS[dateStr]) || [];
+
+  return ALL_SLOTS.filter(slot => {
+    const start = slotToMins(slot);
+    const end   = start + total;
+    if (end > CLOSE_MINS) return false;
+    // No starts during lunch 12:00–12:59
+    if (start >= 720 && start < 780) return false;
+    // Hide slot if it overlaps any booked window on this date
+    for (const [bStart, bEnd] of bookedWindows) {
+      if (start < bEnd && end > bStart) return false;
+    }
+    return true;
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────────────────────
+function switchTab(cat, btn) {
+  document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + cat).classList.add('active');
+}
+
+// ─────────────────────────────────────────────────────────────
+// SERVICE TOGGLE
+// ─────────────────────────────────────────────────────────────
+function pickSvc(rowEl, name, cat, dur) {
+  const idx = S.svcs.findIndex(s => s.name === name);
+  if (idx > -1) { S.svcs.splice(idx, 1); rowEl.classList.remove('sel'); }
+  else          { S.svcs.push({name,cat,dur}); rowEl.classList.add('sel'); }
+  renderSelPanel(); if (S.date) buildSlots(); validate();
+}
+
+function removeSvc(name) {
+  S.svcs = S.svcs.filter(s => s.name !== name);
+  document.querySelectorAll('.svc-row').forEach(r => {
+    const n = r.querySelector('.svc-name');
+    if (n && n.textContent.replace('✃','').trim() === name) r.classList.remove('sel');
+  });
+  renderSelPanel(); if (S.date) buildSlots(); validate();
+}
+
+function renderSelPanel() {
+  const body = document.getElementById('sel-body');
+  if (!S.svcs.length) { body.innerHTML = '<span class="sel-empty">No services selected — browse the menu above</span>'; return; }
+  const total = getTotalDuration();
+  body.innerHTML = `<div class="sel-list">${S.svcs.map(s => `
+    <div class="sel-item">
+      <div class="sel-item-name">${s.name}</div>
+      <button class="sel-remove" onclick="removeSvc(${JSON.stringify(s.name)})">×</button>
+    </div>`).join('')}</div>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// CALENDAR
+// ─────────────────────────────────────────────────────────────
+function buildCal() {
+  document.getElementById('cal-label-month').textContent = MONTHS[S.mo];
+  document.getElementById('cal-label-year').textContent  = S.yr;
+  const g = document.getElementById('cal-grid');
+  g.innerHTML = '';
+  const today = new Date();
+  const first = new Date(S.yr, S.mo, 1).getDay();
+  const days  = new Date(S.yr, S.mo+1, 0).getDate();
+  const prevD = new Date(S.yr, S.mo, 0).getDate();
+
+  for (let i = first-1; i >= 0; i--) mkCell(g, prevD-i, 'other');
+
+  for (let d = 1; d <= days; d++) {
+    const dt       = new Date(S.yr, S.mo, d);
+    const past     = dt < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const isSun    = dt.getDay() === 0;
+    const key      = dateKey(S.yr, S.mo, d);
+    const isBlocked= BLOCKED_DATES.has(key);
+    const isToday  = d===today.getDate() && S.mo===today.getMonth() && S.yr===today.getFullYear();
+    const isSel    = S.date && S.date.getDate()===d && S.date.getMonth()===S.mo && S.date.getFullYear()===S.yr;
+    const unavail  = past || isSun || isBlocked;
+
+    let cls = unavail ? (isBlocked && !past ? 'blocked' : 'past') : 'avail';
+    if (isToday && !unavail) cls += ' today';
+    if (isSel   && !unavail) cls += ' picked';
+
+    const el = mkCell(g, d, cls);
+    if (!unavail) el.onclick = () => pickDate(new Date(S.yr, S.mo, d));
+  }
+
+  const rem = 42 - g.children.length;
+  for (let i = 1; i <= rem; i++) mkCell(g, i, 'other');
+}
+
+function mkCell(parent, txt, cls) {
+  const el = document.createElement('div');
+  el.className = 'c-cell ' + cls;
+  el.textContent = txt;
+  parent.appendChild(el);
+  return el;
+}
+
+function shiftMo(d) {
+  S.mo += d;
+  if (S.mo > 11) { S.mo=0; S.yr++; }
+  if (S.mo < 0)  { S.mo=11; S.yr--; }
+  buildCal();
+}
+
+function pickDate(dt) {
+  S.date = dt; S.time = null;
+  buildCal(); buildSlots(); validate();
+}
+
+// ─────────────────────────────────────────────────────────────
+// TIME SLOTS
+// ─────────────────────────────────────────────────────────────
+function buildSlots() {
+  const sec  = document.getElementById('slots-sec');
+  const grid = document.getElementById('slots-grid');
+  if (!S.date) return;
+  sec.style.display = 'block';
+  grid.innerHTML = '';
+  const avail = getAvailableSlots();
+  ALL_SLOTS.forEach(t => {
+    const btn = document.createElement('button');
+    const ok  = avail.includes(t);
+    btn.className = 'slot' + (ok ? '' : ' off');
+    btn.textContent = t;
+    btn.disabled = !ok;
+    if (ok) btn.onclick = () => pickTime(t, btn);
+    if (S.time === t) btn.classList.add('picked');
+    grid.appendChild(btn);
+  });
+}
+
+function pickTime(t, el) {
+  S.time = t;
+  document.querySelectorAll('.slot').forEach(s => s.classList.remove('picked'));
+  el.classList.add('picked');
+  validate();
+}
+
+// ─────────────────────────────────────────────────────────────
+// VALIDATE
+// ─────────────────────────────────────────────────────────────
+function validate() {
+  const name  = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  document.getElementById('book-btn').disabled = !(S.svcs.length && S.date && S.time && name && email);
+}
+document.getElementById('f-name').addEventListener('input', validate);
+document.getElementById('f-email').addEventListener('input', validate);
+
+// ─────────────────────────────────────────────────────────────
+// SUBMIT
+// ─────────────────────────────────────────────────────────────
+function doBook() {
+  const name  = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const ig    = document.getElementById('f-instagram').value.trim();
+  const contact = document.getElementById('f-contact').value;
+  const notes   = document.getElementById('f-notes').value.trim();
+  if (!name || !email) { alert('Please enter your name and email.'); return; }
+
+  const ds = S.date.toLocaleDateString('en-US', {weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  const igHandle = ig ? (ig.startsWith('@') ? ig : '@'+ig) : null;
+  const total    = getTotalDuration();
+
+  document.getElementById('modal-rows').innerHTML = `
+    <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);">
+      <span>Services</span><span>${S.svcs.map(s=>s.name).join(', ')}</span>
+    </div>
+    <div class="m-row"><span>Date</span><span>${ds}</span></div>
+    <div class="m-row"><span>Time</span><span>${S.time}</span></div>
+    <div class="m-row" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(212,216,220,0.08);">
+      <span>Name</span><span>${name}</span>
+    </div>
+    <div class="m-row"><span>Email</span><span>${email}</span></div>
+    ${phone    ? `<div class="m-row"><span>Phone</span><span>${phone}</span></div>` : ''}
+    ${igHandle ? `<div class="m-row"><span>Instagram</span><span>${igHandle}</span></div>` : ''}
+    ${contact  ? `<div class="m-row"><span>Contact via</span><span>${contact}</span></div>` : ''}
+    ${attachedFiles.length ? `<div class="m-row"><span>Inspo Pics</span><span>${attachedFiles.length} image${attachedFiles.length>1?'s':''} attached</span></div>` : ''}
+    ${notes    ? `<div class="m-row"><span>Notes</span><span style="max-width:260px;">${notes}</span></div>` : ''}
+  `;
+
+  const now = new Date();
+  document.getElementById('confirm-ref').textContent =
+    `REF #OTH-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeModal() { document.getElementById('overlay').classList.remove('show'); }
+
+// ─────────────────────────────────────────────────────────────
+// IMAGE UPLOAD
+// ─────────────────────────────────────────────────────────────
+let attachedFiles = [];
+
+function handleFiles(incoming) {
+  Array.from(incoming).filter(f => f.type.startsWith('image/')).forEach(f => {
+    attachedFiles.push(f);
+    const reader = new FileReader();
+    const idx = attachedFiles.length - 1;
+    reader.onload = e => {
+      const item = document.createElement('div');
+      item.className = 'preview-item'; item.dataset.idx = idx;
+      item.innerHTML = `<img src="${e.target.result}" alt="ref"><button class="preview-remove" onclick="removeFile(${idx})">×</button>`;
+      document.getElementById('preview-grid').appendChild(item);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+function removeFile(idx) {
+  attachedFiles[idx] = null;
+  const el = document.querySelector(`.preview-item[data-idx="${idx}"]`);
+  if (el) el.remove();
+  attachedFiles = attachedFiles.filter(Boolean);
+  document.querySelectorAll('.preview-item').forEach((el,i) => {
+    el.dataset.idx = i;
+    el.querySelector('.preview-remove').setAttribute('onclick', `removeFile(${i})`);
+  });
+}
+
+const dz = document.getElementById('upload-zone');
+dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', ()  => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
+
+// ─────────────────────────────────────────────────────────────
+// REVEAL ANIMATIONS
+// ─────────────────────────────────────────────────────────────
+const obs = new IntersectionObserver(
+  es => es.forEach(x => { if(x.isIntersecting) x.target.classList.add('in'); }),
+  { threshold: 0.1 }
+);
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+buildCal();
+fetchBlockedDates(); // fetch live blocked dates from Google Sheet
+</script>
+</body>
+</html>
