@@ -815,18 +815,20 @@ function doBook() {
     ? `${validFiles.length} image(s) uploaded — client will send via preferred contact method`
     : 'None';
 
+  const trim = (s, n=200) => s ? s.substring(0, n) : '—';
+
   emailjs.send('service_other001', 'template_x6qy5fm', {
     to_email:    'other0.01contact@gmail.com',
     ref:          ref,
-    client_name:  name,
-    client_email: email,
-    client_phone: phone || '—',
-    instagram:    igHandle || '—',
-    contact_via:  contact || '—',
-    services:     S.svcs.map(s => s.name).join(', '),
-    date:         ds,
-    time:         S.time,
-    notes:        notes || '—',
+    client_name:  trim(name),
+    client_email: trim(email),
+    client_phone: trim(phone) || '—',
+    instagram:    trim(igHandle) || '—',
+    contact_via:  trim(contact) || '—',
+    services:     trim(S.svcs.map(s => s.name).join(', ')),
+    date:         trim(ds),
+    time:         trim(S.time),
+    notes:        trim(notes, 500) || '—',
     images_html:  imagesNote,
   }).then(() => console.log('Email sent OK'))
     .catch(err => console.error('Email send failed:', JSON.stringify(err)));
