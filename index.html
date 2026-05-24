@@ -814,7 +814,7 @@ function doBook() {
   const validFiles = attachedFiles.filter(Boolean);
 
   // Compress image to tiny thumbnail via canvas
-  function compressImage(file, maxSize=300, quality=0.6) {
+  function compressImage(file, maxSize=500, quality=0.8) {
     return new Promise(resolve => {
       const reader = new FileReader();
       reader.onload = e => {
@@ -856,11 +856,11 @@ function doBook() {
   } else {
     Promise.all(validFiles.map(f => compressImage(f))).then(dataUrls => {
       const imgTags = dataUrls.map(src =>
-        `<img src="${src}" style="width:280px;height:280px;object-fit:cover;margin:4px;display:inline-block;" />`
+        `<img src="${src}" style="width:400px;height:400px;object-fit:cover;margin:4px;display:inline-block;" />`
       ).join('');
       // Check total size — if still too big, send without images
       const totalKB = new Blob([imgTags]).size / 1024;
-      if (totalKB > 45) {
+      if (totalKB > 48) {
         sendEmailWithImages(`${validFiles.length} image(s) — too large to embed, client will send separately`);
       } else {
         sendEmailWithImages(imgTags);
