@@ -814,7 +814,7 @@ function doBook() {
   const validFiles = attachedFiles.filter(Boolean);
 
   // Compress image to tiny thumbnail via canvas
-  function compressImage(file, maxSize=500, quality=0.8) {
+  function compressImage(file, maxSize=300, quality=1.0) {
     return new Promise(resolve => {
       const reader = new FileReader();
       reader.onload = e => {
@@ -852,19 +852,88 @@ function doBook() {
   }
 
   if (validFiles.length === 0) {
-    sendEmailWithImages('None');
+    emailjs.send('service_other001', 'template_x6qy5fm', {
+      to_email:    'other0.01contact@gmail.com',
+      ref:          ref,
+      client_name:  trim(name),
+      client_email: trim(email),
+      client_phone: trim(phone) || '—',
+      instagram:    trim(igHandle) || '—',
+      contact_via:  trim(contact) || '—',
+      services:     trim(S.svcs.map(s => s.name).join(', ')),
+      date:         trim(ds),
+      time:         trim(S.time),
+      notes:        trim(notes, 500) || '—',
+      images_html:  'None',
+    }).then(() => console.log('Email sent OK'))
+      .catch(err => console.error('Email send failed:', JSON.stringify(err)));
   } else {
     Promise.all(validFiles.map(f => compressImage(f))).then(dataUrls => {
-      const imgTags = dataUrls.map(src =>
-        `<img src="${src}" style="width:400px;height:400px;object-fit:cover;margin:4px;display:inline-block;" />`
-      ).join('');
-      // Check total size — if still too big, send without images
-      const totalKB = new Blob([imgTags]).size / 1024;
-      if (totalKB > 48) {
-        sendEmailWithImages(`${validFiles.length} image(s) — too large to embed, client will send separately`);
-      } else {
-        sendEmailWithImages(imgTags);
-      }
+
+      // Build base email params (no images)
+      const baseParams = {
+        to_email:    'other0.01contact@gmail.com',
+        ref:          ref,
+        client_name:  trim(name),
+        client_email: trim(email),
+        client_phone: trim(phone) || '—',
+        instagram:    trim(igHandle) || '—',
+        contact_via:  trim(contact) || '—',
+        services:     trim(S.svcs.map(s => s.name).join(', ')),
+        date:         trim(ds),
+        time:         trim(S.time),
+        notes:        trim(notes, 500) || '—',
+      };
+
+      // Batch images into groups that fit under 40KB each
+      const batches = [];
+      let currentBatch = [];
+      let currentSize = 0;
+
+      dataUrls.forEach((src, i) => {
+        const tag = `<img src="${src}" style="width:400px;height:400px;object-fit:cover;margin:4px;display:inline-block;" />`;
+        const tagSize = new Blob([tag]).size / 1024;
+        if (currentSize + tagSize > 38 && currentBatch.length > 0) {
+          batches.push(currentBatch);
+          currentBatch = [tag];
+          currentSize = tagSize;
+        } else {
+          currentBatch.push(tag);
+          currentSize += tagSize;
+        }
+      });
+      if (currentBatch.length > 0) batches.push(currentBatch);
+
+      // Send first email with booking details + first batch of images
+      const sendBatch = (batchIndex) => {
+        if (batchIndex >= batches.length) return;
+        const isFirst = batchIndex === 0;
+        const label = batches.length > 1
+          ? `Inspo Pics (${batchIndex + 1} of ${batches.length}):`
+          : null;
+        const params = {
+          ...baseParams,
+          images_html: (label ? `<p><strong>${label}</strong></p>` : '') + batches[batchIndex].join(''),
+        };
+        // For follow-up emails, clear booking details to keep size small
+        if (!isFirst) {
+          params.ref = `${ref} — Images ${batchIndex + 1} of ${batches.length}`;
+          params.client_name = name;
+          params.services = '(continued from previous email)';
+          params.date = ''; params.time = '';
+          params.client_phone = ''; params.instagram = '';
+          params.contact_via = ''; params.notes = '';
+          params.client_email = '';
+        }
+        emailjs.send('service_other001', 'template_x6qy5fm', params)
+          .then(() => {
+            console.log(`Email batch ${batchIndex + 1} sent OK`);
+            sendBatch(batchIndex + 1);
+          })
+          .catch(err => console.error(`Email batch ${batchIndex + 1} failed:`, JSON.stringify(err)));
+      };
+
+      sendBatch(0);
     });
   }
 }
