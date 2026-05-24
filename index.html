@@ -256,8 +256,18 @@
     .confirm-top,.confirm-summary,.confirm-notice { padding: 20px 16px; }
   }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>emailjs.init('NiBoQ_1Z2sNTVK1Jb');</script>
+<script>
+  (function() {
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+    s.onload = function() {
+      emailjs.init('NiBoQ_1Z2sNTVK1Jb');
+      console.log('EmailJS ready');
+    };
+    s.onerror = function() { console.warn('EmailJS failed to load'); };
+    document.head.appendChild(s);
+  })();
+</script>
 </head>
 <body>
 
@@ -817,7 +827,8 @@ function doBook() {
       time:         S.time,
       notes:        notes || '—',
       images_html:  imagesHtml,
-    }).catch(err => console.warn('Email send failed:', err));
+    }).then(() => console.log('Email sent OK'))
+      .catch(err => console.error('Email send failed:', JSON.stringify(err)));
   }
 
   if (validFiles.length === 0) {
