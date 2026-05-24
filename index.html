@@ -810,40 +810,26 @@ function doBook() {
   document.getElementById('confirm-ref').textContent = ref;
   document.getElementById('overlay').classList.add('show');
 
-  // Convert all images to base64 then send email with inline images
   const validFiles = attachedFiles.filter(Boolean);
+  const imagesNote = validFiles.length > 0
+    ? `${validFiles.length} image(s) uploaded — client will send via preferred contact method`
+    : 'None';
 
-  function sendEmail(imagesHtml) {
-    emailjs.send('service_other001', 'template_x6qy5fm', {
-      to_email:    'other0.01contact@gmail.com',
-      ref:          ref,
-      client_name:  name,
-      client_email: email,
-      client_phone: phone || '—',
-      instagram:    igHandle || '—',
-      contact_via:  contact || '—',
-      services:     S.svcs.map(s => s.name).join(', '),
-      date:         ds,
-      time:         S.time,
-      notes:        notes || '—',
-      images_html:  imagesHtml,
-    }).then(() => console.log('Email sent OK'))
-      .catch(err => console.error('Email send failed:', JSON.stringify(err)));
-  }
-
-  if (validFiles.length === 0) {
-    sendEmail('<p>No images attached.</p>');
-  } else {
-    // Read all files as base64, then send once all are ready
-    const promises = validFiles.map(file => new Promise(resolve => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(`<img src="${e.target.result}" style="max-width:300px;max-height:300px;margin:4px;" />`);
-      reader.readAsDataURL(file);
-    }));
-    Promise.all(promises).then(imgTags => {
-      sendEmail(imgTags.join(''));
-    });
-  }
+  emailjs.send('service_other001', 'template_x6qy5fm', {
+    to_email:    'other0.01contact@gmail.com',
+    ref:          ref,
+    client_name:  name,
+    client_email: email,
+    client_phone: phone || '—',
+    instagram:    igHandle || '—',
+    contact_via:  contact || '—',
+    services:     S.svcs.map(s => s.name).join(', '),
+    date:         ds,
+    time:         S.time,
+    notes:        notes || '—',
+    images_html:  imagesNote,
+  }).then(() => console.log('Email sent OK'))
+    .catch(err => console.error('Email send failed:', JSON.stringify(err)));
 }
 
 function closeModal() { document.getElementById('overlay').classList.remove('show'); }
