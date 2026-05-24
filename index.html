@@ -810,28 +810,63 @@ function doBook() {
   document.getElementById('confirm-ref').textContent = ref;
   document.getElementById('overlay').classList.add('show');
 
-  const validFiles = attachedFiles.filter(Boolean);
-  const imagesNote = validFiles.length > 0
-    ? `${validFiles.length} image(s) uploaded — client will send via preferred contact method`
-    : 'None';
-
   const trim = (s, n=200) => s ? s.substring(0, n) : '—';
+  const validFiles = attachedFiles.filter(Boolean);
 
-  emailjs.send('service_other001', 'template_x6qy5fm', {
-    to_email:    'other0.01contact@gmail.com',
-    ref:          ref,
-    client_name:  trim(name),
-    client_email: trim(email),
-    client_phone: trim(phone) || '—',
-    instagram:    trim(igHandle) || '—',
-    contact_via:  trim(contact) || '—',
-    services:     trim(S.svcs.map(s => s.name).join(', ')),
-    date:         trim(ds),
-    time:         trim(S.time),
-    notes:        trim(notes, 500) || '—',
-    images_html:  imagesNote,
-  }).then(() => console.log('Email sent OK'))
-    .catch(err => console.error('Email send failed:', JSON.stringify(err)));
+  // Compress image to tiny thumbnail via canvas
+  function compressImage(file, maxSize=120, quality=0.35) {
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
+          canvas.width  = Math.round(img.width  * ratio);
+          canvas.height = Math.round(img.height * ratio);
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function sendEmailWithImages(imagesHtml) {
+    emailjs.send('service_other001', 'template_x6qy5fm', {
+      to_email:    'other0.01contact@gmail.com',
+      ref:          ref,
+      client_name:  trim(name),
+      client_email: trim(email),
+      client_phone: trim(phone) || '—',
+      instagram:    trim(igHandle) || '—',
+      contact_via:  trim(contact) || '—',
+      services:     trim(S.svcs.map(s => s.name).join(', ')),
+      date:         trim(ds),
+      time:         trim(S.time),
+      notes:        trim(notes, 500) || '—',
+      images_html:  imagesHtml,
+    }).then(() => console.log('Email sent OK'))
+      .catch(err => console.error('Email send failed:', JSON.stringify(err)));
+  }
+
+  if (validFiles.length === 0) {
+    sendEmailWithImages('None');
+  } else {
+    Promise.all(validFiles.map(f => compressImage(f))).then(dataUrls => {
+      const imgTags = dataUrls.map(src =>
+        `<img src="${src}" style="width:120px;height:120px;object-fit:cover;margin:3px;display:inline-block;" />`
+      ).join('');
+      // Check total size — if still too big, send without images
+      const totalKB = new Blob([imgTags]).size / 1024;
+      if (totalKB > 30) {
+        sendEmailWithImages(`${validFiles.length} image(s) — too large to embed, client will send separately`);
+      } else {
+        sendEmailWithImages(imgTags);
+      }
+    });
+  }
 }
 
 function closeModal() { document.getElementById('overlay').classList.remove('show'); }
