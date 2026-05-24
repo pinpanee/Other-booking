@@ -800,21 +800,39 @@ function doBook() {
   document.getElementById('confirm-ref').textContent = ref;
   document.getElementById('overlay').classList.add('show');
 
-  // Send email notification via EmailJS
-  emailjs.send('service_other001', 'template_x6qy5fm', {
-    to_email:    'other0.01contact@gmail.com',
-    ref:          ref,
-    client_name:  name,
-    client_email: email,
-    client_phone: phone || '—',
-    instagram:    igHandle || '—',
-    contact_via:  contact || '—',
-    services:     S.svcs.map(s => s.name).join(', '),
-    date:         ds,
-    time:         S.time,
-    notes:        notes || '—',
-    images:       attachedFiles.length ? attachedFiles.length + ' image(s) attached' : 'None',
-  }).catch(err => console.warn('Email send failed:', err));
+  // Convert all images to base64 then send email with inline images
+  const validFiles = attachedFiles.filter(Boolean);
+
+  function sendEmail(imagesHtml) {
+    emailjs.send('service_other001', 'template_x6qy5fm', {
+      to_email:    'other0.01contact@gmail.com',
+      ref:          ref,
+      client_name:  name,
+      client_email: email,
+      client_phone: phone || '—',
+      instagram:    igHandle || '—',
+      contact_via:  contact || '—',
+      services:     S.svcs.map(s => s.name).join(', '),
+      date:         ds,
+      time:         S.time,
+      notes:        notes || '—',
+      images_html:  imagesHtml,
+    }).catch(err => console.warn('Email send failed:', err));
+  }
+
+  if (validFiles.length === 0) {
+    sendEmail('<p>No images attached.</p>');
+  } else {
+    // Read all files as base64, then send once all are ready
+    const promises = validFiles.map(file => new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(`<img src="${e.target.result}" style="max-width:300px;max-height:300px;margin:4px;" />`);
+      reader.readAsDataURL(file);
+    }));
+    Promise.all(promises).then(imgTags => {
+      sendEmail(imgTags.join(''));
+    });
+  }
 }
 
 function closeModal() { document.getElementById('overlay').classList.remove('show'); }
