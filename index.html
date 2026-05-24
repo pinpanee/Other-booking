@@ -164,7 +164,7 @@
   .booking-notice p { font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.85; color:var(--muted); letter-spacing:0.02em; }
 
   /* ── BUTTONS ── */
-  .btn-book { width:100%; height:50px; padding:0 32px; background:var(--electric); color:#fff; font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:13px; letter-spacing:0.1em; text-transform:uppercase; border:none; cursor:crosshair; position:relative; overflow:hidden; transition:all 0.25s; margin-top:8px; box-shadow:0 0 32px var(--electric-glow); }
+  .btn-book { width:100%; height:50px; padding:0 32px; background:var(--electric); color:#fff; font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:13px; letter-spacing:0.1em; text-transform:uppercase; border:none; cursor:crosshair; position:relative; overflow:hidden; transition:all 0.25s; margin-top:8px; box-shadow:0 0 32px var(--electric-glow); display:flex; flex-direction:column; align-items:flex-start; justify-content:center; padding-left:32px; }
   .btn-book::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); transform:translateX(-100%); transition:transform 0.5s; }
   .btn-book:hover::before { transform:translateX(100%); }
   .btn-book:hover { box-shadow:0 0 48px var(--electric-glow); transform:translateY(-1px); }
@@ -256,6 +256,8 @@
     .confirm-top,.confirm-summary,.confirm-notice { padding: 20px 16px; }
   }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init('NiBoQ_1Z2sNTVK1Jb');</script>
 </head>
 <body>
 
@@ -377,7 +379,10 @@
 
   <!-- DETAILS -->
   <div style="padding:0 8px 40px;" class="reveal">
-    <div class="sec-eyebrow">03 / Your Details</div>
+    <div class="details-grid" style="margin-bottom:0;">
+      <div class="sec-eyebrow" style="margin-bottom:12px;">03 / Your Details</div>
+      <div class="sec-eyebrow" style="margin-bottom:12px;">04 / Additional Info</div>
+    </div>
     <div class="details-grid">
       <div>
         <div class="f-field"><label class="f-lbl">Name</label><input class="f-in" type="text" placeholder="Your name" id="f-name"></div>
@@ -396,17 +401,17 @@
         </div>
       </div>
       <div style="position:relative; padding-bottom:60px;">
-        <div class="f-field" style="margin-top:5px;"><label class="f-lbl">Notes / References</label><textarea class="f-ta" placeholder="Vision, references, hair history, or anything useful..." id="f-notes"></textarea></div>
-        <div class="f-field">
-          <label class="f-lbl" style="white-space:nowrap;">Inspo Pics <span style="color:var(--electric);font-size:7.5px;font-style:italic;text-transform:none;letter-spacing:0.01em;">(very helpful!)</span></label>
+        <div class="f-field" style="margin-top:0;">
+          <label class="f-lbl" style="white-space:nowrap;">Inspo Pics <span style="color:var(--muted);font-size:8.5px;font-style:italic;text-transform:none;letter-spacing:0.01em;">— very helpful!</span></label>
+          <div id="preview-container" style="background:rgba(212,216,220,0.06); border:1px solid var(--border); margin-bottom:6px; padding:8px; overflow:hidden; height:100px;">
+            <div class="preview-grid" id="preview-grid" style="width:100%;"></div>
+          </div>
           <div class="upload-zone" id="upload-zone" onclick="document.getElementById('f-images').click()" style="height:30px; min-height:30px; max-height:30px; padding:0; justify-content:center; align-items:center; overflow:hidden; background:var(--electric-dim); border-color:rgba(10,111,255,0.4);">
             <input type="file" id="f-images" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="handleFiles(this.files)">
             <div class="upload-icon" id="upload-icon-label" style="width:100%; text-align:center;">+ ADD IMAGES</div>
           </div>
-          <div id="preview-container" style="background:rgba(212,216,220,0.06); border:1px solid var(--border); margin-top:6px; padding:8px; min-height:80px; height:80px; overflow:hidden;">
-            <div class="preview-grid" id="preview-grid" style="width:100%;"></div>
-          </div>
         </div>
+        <div class="f-field"><label class="f-lbl">Notes / References</label><textarea class="f-ta" placeholder="Vision, references, hair history, or anything useful..." id="f-notes"></textarea></div>
 
         <button class="btn-book" id="book-btn" disabled onclick="doBook()" style="position:absolute; bottom:16px; left:0; right:0; margin:0;">Request Booking →</button>
       </div>
@@ -642,16 +647,19 @@ function removeSvc(name) {
   });
   renderSelPanel(); if (S.date) buildSlots(); validate();
 }
+// Global alias so dynamically generated onclick can always find it
+window.removeSvc = removeSvc;
 
 function renderSelPanel() {
   const body = document.getElementById('sel-body');
   if (!S.svcs.length) { body.innerHTML = '<span class="sel-empty">No services selected — browse the menu above</span>'; return; }
-  const total = getTotalDuration();
+  const ds = S.date ? S.date.toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'}) : null;
+  const dateTime = (ds && S.time) ? `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--electric);margin-top:8px;padding-top:8px;border-top:1px solid rgba(212,216,220,0.07);">${ds} · ${S.time}</div>` : ds ? `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid rgba(212,216,220,0.07);">${ds} — pick a time</div>` : '';
   body.innerHTML = `<div class="sel-list">${S.svcs.map(s => `
     <div class="sel-item">
       <div class="sel-item-name">${s.name}</div>
       <button class="sel-remove" onclick="removeSvc(${JSON.stringify(s.name)})">×</button>
-    </div>`).join('')}</div>`;
+    </div>`).join('')}${dateTime}</div>`;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -711,7 +719,7 @@ function shiftMo(d) {
 
 function pickDate(dt) {
   S.date = dt; S.time = null;
-  buildCal(); buildSlots(); validate();
+  buildCal(); buildSlots(); renderSelPanel(); validate();
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -740,7 +748,7 @@ function pickTime(t, el) {
   S.time = t;
   document.querySelectorAll('.slot').forEach(s => s.classList.remove('picked'));
   el.classList.add('picked');
-  validate();
+  renderSelPanel(); validate();
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -788,9 +796,25 @@ function doBook() {
   `;
 
   const now = new Date();
-  document.getElementById('confirm-ref').textContent =
-    `REF #OTH-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  const ref = `REF #OTH-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  document.getElementById('confirm-ref').textContent = ref;
   document.getElementById('overlay').classList.add('show');
+
+  // Send email notification via EmailJS
+  emailjs.send('service_other001', 'template_x6qy5fm', {
+    to_email:    'other0.01contact@gmail.com',
+    ref:          ref,
+    client_name:  name,
+    client_email: email,
+    client_phone: phone || '—',
+    instagram:    igHandle || '—',
+    contact_via:  contact || '—',
+    services:     S.svcs.map(s => s.name).join(', '),
+    date:         ds,
+    time:         S.time,
+    notes:        notes || '—',
+    images:       attachedFiles.length ? attachedFiles.length + ' image(s) attached' : 'None',
+  }).catch(err => console.warn('Email send failed:', err));
 }
 
 function closeModal() { document.getElementById('overlay').classList.remove('show'); }
