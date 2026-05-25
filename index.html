@@ -814,18 +814,28 @@ function doBook() {
   const validFiles = attachedFiles.filter(Boolean);
 
   // Compress image to tiny thumbnail via canvas
-  function compressImage(file, maxSize=300, quality=1.0) {
+  // Compress image, auto-reducing quality if result exceeds maxKB
+  function compressImage(file, maxSize=300, quality=1.0, maxKB=36) {
     return new Promise(resolve => {
       const reader = new FileReader();
       reader.onload = e => {
         const img = new Image();
         img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
-          canvas.width  = Math.round(img.width  * ratio);
-          canvas.height = Math.round(img.height * ratio);
-          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL('image/jpeg', quality));
+          const tryCompress = (q) => {
+            const canvas = document.createElement('canvas');
+            const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
+            canvas.width  = Math.round(img.width  * ratio);
+            canvas.height = Math.round(img.height * ratio);
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg', q);
+            const sizeKB = new Blob([dataUrl]).size / 1024;
+            if (sizeKB > maxKB && q > 0.2) {
+              tryCompress(Math.round((q - 0.1) * 10) / 10); // reduce quality by 0.1
+            } else {
+              resolve(dataUrl);
+            }
+          };
+          tryCompress(quality);
         };
         img.src = e.target.result;
       };
