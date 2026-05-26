@@ -418,7 +418,7 @@
           </div>
           <div class="upload-zone" id="upload-zone" onclick="document.getElementById('f-images').click()" style="height:30px; min-height:30px; max-height:30px; padding:0; justify-content:center; align-items:center; overflow:hidden; background:var(--electric-dim); border-color:rgba(10,111,255,0.4);">
             <input type="file" id="f-images" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="handleFiles(this.files)">
-            <div class="upload-icon" id="upload-icon-label" style="width:100%; text-align:center; margin-top:3px;">+ ADD IMAGES</div>
+            <div class="upload-icon" id="upload-icon-label" style="width:100%; text-align:center; margin-top:5px;">+ ADD IMAGES</div>
           </div>
         </div>
         <div class="f-field"><label class="f-lbl">Notes / References</label><textarea class="f-ta" placeholder="Vision, references, hair history, or anything useful..." id="f-notes"></textarea></div>
@@ -813,37 +813,30 @@ function doBook() {
   const trim = (s, n=200) => s ? s.substring(0, n) : '—';
   const validFiles = attachedFiles.filter(Boolean);
 
-  // Compress image to tiny thumbnail via canvas
-  // Compress image, auto-reducing quality until it fits within maxKB
-  function compressImage(file, maxSize=300, quality=1.0, maxKB=40) {
-    return new Promise(resolve => {
+  const IMGBB_KEY = '8c16ed45c3088d72abfec153130bcc8d';
+
+  // Upload a file to ImgBB and return the full-quality image URL
+  function uploadToImgBB(file) {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = e => {
-        const img = new Image();
-        img.onload = () => {
-          const tryCompress = (q) => {
-            const canvas = document.createElement('canvas');
-            const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
-            canvas.width  = Math.round(img.width  * ratio);
-            canvas.height = Math.round(img.height * ratio);
-            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-            const dataUrl = canvas.toDataURL('image/jpeg', q);
-            const sizeKB = new Blob([dataUrl]).size / 1024;
-            if (sizeKB > maxKB && q > 0.1) {
-              tryCompress(Math.round((q - 0.1) * 10) / 10);
-            } else {
-              resolve(dataUrl);
-            }
-          };
-          tryCompress(quality);
-        };
-        img.src = e.target.result;
+        const base64 = e.target.result.split(',')[1];
+        const form = new FormData();
+        form.append('key', IMGBB_KEY);
+        form.append('image', base64);
+        fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: form })
+          .then(r => r.json())
+          .then(data => {
+            if (data.success) resolve(data.data.url);
+            else reject(new Error('ImgBB upload failed'));
+          })
+          .catch(reject);
       };
       reader.readAsDataURL(file);
     });
   }
 
-  function sendEmailWithImages(imagesHtml) {
+  function sendEmail(imagesHtml) {
     emailjs.send('service_other001', 'template_x6qy5fm', {
       to_email:    'other0.01contact@gmail.com',
       ref:          ref,
@@ -862,89 +855,22 @@ function doBook() {
   }
 
   if (validFiles.length === 0) {
-    emailjs.send('service_other001', 'template_x6qy5fm', {
-      to_email:    'other0.01contact@gmail.com',
-      ref:          ref,
-      client_name:  trim(name),
-      client_email: trim(email),
-      client_phone: trim(phone) || '—',
-      instagram:    trim(igHandle) || '—',
-      contact_via:  trim(contact) || '—',
-      services:     trim(S.svcs.map(s => s.name).join(', ')),
-      date:         trim(ds),
-      time:         trim(S.time),
-      notes:        trim(notes, 500) || '—',
-      images_html:  'None',
-    }).then(() => console.log('Email sent OK'))
-      .catch(err => console.error('Email send failed:', JSON.stringify(err)));
+    sendEmail('None');
   } else {
-    Promise.all(validFiles.map(f => compressImage(f))).then(dataUrls => {
-
-      // Build base email params (no images)
-      const baseParams = {
-        to_email:    'other0.01contact@gmail.com',
-        ref:          ref,
-        client_name:  trim(name),
-        client_email: trim(email),
-        client_phone: trim(phone) || '—',
-        instagram:    trim(igHandle) || '—',
-        contact_via:  trim(contact) || '—',
-        services:     trim(S.svcs.map(s => s.name).join(', ')),
-        date:         trim(ds),
-        time:         trim(S.time),
-        notes:        trim(notes, 500) || '—',
-      };
-
-      // Batch images into groups that fit under 40KB each
-      const batches = [];
-      let currentBatch = [];
-      let currentSize = 0;
-
-      dataUrls.forEach((src, i) => {
-        const tag = `<img src="${src}" style="width:400px;height:400px;object-fit:cover;margin:4px;display:inline-block;" />`;
-        const tagSize = new Blob([tag]).size / 1024;
-        if (currentSize + tagSize > 28 && currentBatch.length > 0) {
-          batches.push(currentBatch);
-          currentBatch = [tag];
-          currentSize = tagSize;
-        } else {
-          currentBatch.push(tag);
-          currentSize += tagSize;
-        }
+    // Upload all images to ImgBB, then send one email with clickable image links
+    Promise.all(validFiles.map(f => uploadToImgBB(f)))
+      .then(urls => {
+        const imagesHtml = urls.map((url, i) =>
+          `<p><a href="${url}" target="_blank">
+             <img src="${url}" style="max-width:400px; max-height:400px; display:block; margin:6px 0;" />
+           </a></p>`
+        ).join('');
+        sendEmail(imagesHtml);
+      })
+      .catch(err => {
+        console.error('ImgBB upload error:', err);
+        sendEmail(`${validFiles.length} image(s) — upload failed, client will send separately`);
       });
-      if (currentBatch.length > 0) batches.push(currentBatch);
-
-      // Send first email with booking details + first batch of images
-      const sendBatch = (batchIndex) => {
-        if (batchIndex >= batches.length) return;
-        const isFirst = batchIndex === 0;
-        const label = batches.length > 1
-          ? `Inspo Pics (${batchIndex + 1} of ${batches.length}):`
-          : null;
-        const params = {
-          ...baseParams,
-          images_html: (label ? `<p><strong>${label}</strong></p>` : '') + batches[batchIndex].join(''),
-        };
-        // For follow-up emails, clear booking details to keep size small
-        if (!isFirst) {
-          params.ref = `${ref} — Images ${batchIndex + 1} of ${batches.length}`;
-          params.client_name = name;
-          params.services = '(continued from previous email)';
-          params.date = ''; params.time = '';
-          params.client_phone = ''; params.instagram = '';
-          params.contact_via = ''; params.notes = '';
-          params.client_email = '';
-        }
-        emailjs.send('service_other001', 'template_x6qy5fm', params)
-          .then(() => {
-            console.log(`Email batch ${batchIndex + 1} sent OK`);
-            sendBatch(batchIndex + 1);
-          })
-          .catch(err => console.error(`Email batch ${batchIndex + 1} failed:`, JSON.stringify(err)));
-      };
-
-      sendBatch(0);
-    });
   }
 }
 
