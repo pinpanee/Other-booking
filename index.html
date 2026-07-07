@@ -484,6 +484,10 @@
 
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8bXLOsU9gUZSiqnlKI3KG2-3_17BTprjJ4_zQ5IgxgGHMT2YBzq8FxwPCuDEzgEcDCkEHoI5B_M7b/pub?gid=0&single=true&output=csv';
 
+// Apps Script web app — stores/retrieves booking data by ref so confirmation
+// links can be short (/confirm/REF) instead of encoding the whole payload.
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKiHQspmUHy9haUPFeZ6BxFtijlVqwcHDyT954_lwzP4mgWc7Au8Z2DwMSsKHafXrsgA/exec';
+
 // Full-day blocked dates — populated from sheet (YYYY-MM-DD)
 let BLOCKED_DATES = new Set();
 
@@ -971,16 +975,24 @@ function doBook() {
   document.getElementById('btn-cal').href = calUrl;
   document.getElementById('overlay').classList.add('show');
 
-  // ── Shareable confirmation link (encodes the finished summary + cal link) ──
-  // The client's own address bar only ever gets the PENDING version (no calendar
-  // link, copy-link button hidden). The FULL version — with working calendar
-  // link + copy-link button — only ever goes to you, in the admin notification
-  // email, via the admin_link field below.
+  // ── Shareable confirmation link ──
+  // Booking data is saved to the Apps Script backend keyed by pathRef, so the
+  // link itself only needs to carry the ref — no more encoding the whole
+  // payload into the URL. The client's own address bar only ever gets the
+  // PENDING version (no calendar link, copy-link button hidden). The FULL
+  // version — with working calendar link + copy-link button — only ever goes
+  // to you, in the admin notification email, via the admin_link field below.
+  const pathRef    = ref.replace(/^#/, '');
   const confirmData = { ref, rows: document.getElementById('modal-rows').innerHTML, calUrl };
-  const encodedData = btoa(unescape(encodeURIComponent(JSON.stringify(confirmData))));
-  const baseUrl   = window.location.origin + window.location.pathname;
-  const pendingUrl = `${baseUrl}?c=${encodeURIComponent(ref)}&m=pending&d=${encodeURIComponent(encodedData)}`;
-  const fullUrl    = `${baseUrl}?c=${encodeURIComponent(ref)}&m=full&d=${encodeURIComponent(encodedData)}`;
+  const pendingUrl = `${window.location.origin}/confirm/${encodeURIComponent(pathRef)}?m=pending`;
+  const fullUrl    = `${window.location.origin}/confirm/${encodeURIComponent(pathRef)}?m=full`;
+
+  // Fire-and-forget save to the sheet. Sent as text/plain to avoid a CORS
+  // preflight (Apps Script doesn't handle OPTIONS requests).
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ pathRef, ...confirmData })
+  }).catch(err => console.warn('Booking save failed:', err));
 
   history.replaceState(null, '', pendingUrl);
   setConfirmMode('pending');
@@ -1107,8 +1119,32 @@ function copyConfirmLink() {
 
 // If this page was opened via a confirmation link (?c=...&d=...&m=...), rebuild
 // that exact confirmation screen instead of the normal booking flow.
-(function initFromConfirmLink() {
+async function initFromConfirmLink() {
   const params = new URLSearchParams(window.location.search);
+  const mode = params.get('m') === 'full' ? 'full' : 'pending';
+
+  // New format: /confirm/REF?m=pending|full — data fetched from Apps Script.
+  const pathMatch = window.location.pathname.match(/\/confirm\/([^/]+)/);
+  if (pathMatch) {
+    const pathRef = decodeURIComponent(pathMatch[1]);
+    try {
+      const res = await fetchWithCORSFallback(`${APPS_SCRIPT_URL}?ref=${encodeURIComponent(pathRef)}`);
+      if (!res) throw new Error('Could not reach booking backend');
+      const data = await res.json();
+      if (!data) throw new Error('No booking found for ref: ' + pathRef);
+      document.getElementById('confirm-ref').textContent = data.ref || ('#' + pathRef);
+      document.getElementById('modal-rows').innerHTML = data.rows || '';
+      document.getElementById('btn-cal').href = data.calUrl || '#';
+      document.getElementById('overlay').classList.add('show');
+      setConfirmMode(mode);
+    } catch (e) {
+      console.error('Could not load confirmation:', e);
+    }
+    return;
+  }
+
+  // Legacy format: ?c=...&m=...&d=<base64> — still supported so old links
+  // already sent out keep working.
   const d = params.get('d');
   if (!d) return;
   try {
@@ -1117,11 +1153,12 @@ function copyConfirmLink() {
     document.getElementById('modal-rows').innerHTML = data.rows || '';
     document.getElementById('btn-cal').href = data.calUrl || '#';
     document.getElementById('overlay').classList.add('show');
-    setConfirmMode(params.get('m') === 'full' ? 'full' : 'pending');
+    setConfirmMode(mode);
   } catch (e) {
     console.error('Could not parse confirmation link:', e);
   }
-})();
+}
+initFromConfirmLink();
 
 function downloadConfirmation() {
   const btn = document.querySelector('.btn-dl');
