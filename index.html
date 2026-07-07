@@ -572,6 +572,54 @@ function setSheetStatus(state) {
   if (state === 'error')   { el.textContent = '⚠ Could not sync'; el.style.color = '#ff6b6b'; }
 }
 
+// Google Apps Script Web App endpoint — appends a blocked row to the same sheet
+const BLOCK_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby31aLatZjwn_mQxkwWOD7UNBTB0U71jeFDt2at09SR7y8CimdlBqQaStONtsxz4y2LjQ/exec';
+
+// Format a Date object as DD-MM-YYYY to match the sheet's existing format
+function formatSheetDate(dt) {
+  const d = String(dt.getDate()).padStart(2, '0');
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const y = dt.getFullYear();
+  return `${d}-${m}-${y}`;
+}
+
+// Format total minutes-from-midnight as HH:MM
+function minsToHHMM(mins) {
+  const h = String(Math.floor(mins / 60)).padStart(2, '0');
+  const m = String(mins % 60).padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+// Send the just-booked slot to the Apps Script Web App so it's blocked
+// immediately (before the sheet-sync poll would otherwise pick it up).
+function blockSlot(date, startTime, durationMins) {
+  const [sh, sm] = startTime.split(':').map(Number);
+  const startMins = sh * 60 + sm;
+  const endMins = startMins + durationMins;
+
+  const payload = {
+    date:  formatSheetDate(date),
+    start: startTime,
+    end:   minsToHHMM(endMins),
+  };
+
+  // Also block it locally right away so the calendar reflects it
+  // without waiting on the next sheet fetch.
+  const dk = date.toISOString().split('T')[0];
+  if (!BLOCKED_SLOTS[dk]) BLOCKED_SLOTS[dk] = [];
+  BLOCKED_SLOTS[dk].push([startMins, endMins]);
+
+  // Apps Script web apps don't return CORS headers on POST responses,
+  // so we fire-and-forget with no-cors — we can't read the response,
+  // but the row still gets appended server-side.
+  fetch(BLOCK_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' }, // avoids CORS preflight
+    body: JSON.stringify(payload),
+  }).catch(err => console.warn('Block-slot request failed:', err.message));
+}
+
 async function fetchBlockedDates() {
   setSheetStatus('loading');
   document.getElementById('cal-loading').style.display = 'flex';
@@ -1009,6 +1057,9 @@ function doBook() {
     }).then(() => console.log('Email sent OK'))
       .catch(err => console.error('Email send failed:', JSON.stringify(err)));
   }
+
+  // Block this date/time on the sheet right away so no one else can pick it
+  blockSlot(S.date, S.time, total);
 
   if (validFiles.length === 0) {
     sendEmail('None');
