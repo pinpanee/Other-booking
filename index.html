@@ -465,6 +465,7 @@
   </div>
     <div class="btn-dl-row" style="display:flex; gap:0; border-top:1px solid var(--border);">
       <button class="btn-cls btn-dl" onclick="downloadConfirmation()" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center;">↓ SAVE BOOKING DETAILS</button>
+      <a id="btn-cal" href="#" target="_blank" class="btn-cls" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center; text-decoration:none;">📅 ADD TO CALENDAR</a>
       <button class="btn-cls" onclick="closeModal()" style="border-top:none; flex:0 0 80px; padding-top:17.5px; padding-bottom:17.5px; font-size:17px; position:relative; top:-2px;">×</button>
     </div>
   </div>
@@ -964,6 +965,7 @@ function doBook() {
   const apptTime  = S.time.replace(':', '');
   const ref = `#OTH-${apptTime}-${apptDay}${apptMonth}${apptYear}`;
   document.getElementById('confirm-ref').textContent = ref;
+  document.getElementById('btn-cal').href = buildCalendarUrl();
   document.getElementById('overlay').classList.add('show');
 
   const trim = (s, n=200) => s ? s.substring(0, n) : '—';
@@ -1028,6 +1030,19 @@ function doBook() {
         sendEmail(`${validFiles.length} image(s) — upload failed, client will send separately`);
       });
   }
+}
+
+function buildCalendarUrl() {
+  const apptDay   = String(S.date.getDate()).padStart(2,'0');
+  const apptMonth = String(S.date.getMonth()+1).padStart(2,'0');
+  const apptYear  = String(S.date.getFullYear());
+  const timeClean = S.time.replace(':','') + '00';
+  const dates = `${apptYear}${apptMonth}${apptDay}T${timeClean}/${apptYear}${apptMonth}${apptDay}T${timeClean}`;
+  const serviceNames = S.svcs.map(s => s.name).join(', ');
+  const text = encodeURIComponent(`★ ${serviceNames} ★ at OTHER___0.01`);
+  const details = encodeURIComponent(serviceNames);
+  const location = encodeURIComponent('https://other-location.vercel.app/');
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&details=${details}&location=${location}&ctz=Asia/Bangkok`;
 }
 
 function closeModal() { document.getElementById('overlay').classList.remove('show'); }
