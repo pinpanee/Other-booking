@@ -370,15 +370,15 @@
 
       <!-- BEARDS -->
       <div class="menu-panel" id="panel-beards">
-        <div class="svc-row" onclick="pickSvc(this,'Hot Towel Shave','Beards',90)">
+        <div class="svc-row" onclick="pickSvc(this,'Hot Towel Shave','Beard',90)">
           <div class="svc-check"></div>
           <div class="svc-body"><div class="svc-name">Hot Towel Shave</div><div class="svc-desc">traditional straight razor shave</div></div>
         </div>
-        <div class="svc-row" onclick="pickSvc(this,'Beard Shape + Trim','Beards',90)">
+        <div class="svc-row" onclick="pickSvc(this,'Shape + Trim','Beard',90)">
           <div class="svc-check"></div>
-          <div class="svc-body"><div class="svc-name">Beard Shape + Trim</div><div class="svc-desc">defined lines &amp; balanced shape</div></div>
+          <div class="svc-body"><div class="svc-name">Shape + Trim</div><div class="svc-desc">defined lines &amp; balanced shape</div></div>
         </div>
-        <div class="svc-row" onclick="pickSvc(this,'Tint / Colour','Beards',90)">
+        <div class="svc-row" onclick="pickSvc(this,'Tint / Colour','Beard',90)">
           <div class="svc-check"></div>
           <div class="svc-body"><div class="svc-name">Tint / Colour</div><div class="svc-desc">subtle to full coverage</div></div>
         </div>
@@ -1040,8 +1040,8 @@ function groupServicesByCategory(svcs, asHtml = false) {
   });
   return Object.keys(groups).map(cat => {
     const label = asHtml
-      ? `<span style="color:var(--electric);">${cat.toUpperCase()}</span>`
-      : cat.toUpperCase();
+      ? `<span style="color:var(--electric);">${cat}</span>`
+      : cat;
     return `${label} ${groups[cat].join(', ')}`;
   }).join(' · ');
 }
