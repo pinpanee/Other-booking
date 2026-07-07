@@ -617,7 +617,9 @@ function blockSlot(date, startTime, durationMins) {
     mode: 'no-cors',
     headers: { 'Content-Type': 'text/plain' }, // avoids CORS preflight
     body: JSON.stringify(payload),
-  }).catch(err => console.warn('Block-slot request failed:', err.message));
+  })
+    .then(() => alert('DEBUG: blockSlot request sent OK\n' + JSON.stringify(payload)))
+    .catch(err => alert('DEBUG: blockSlot request FAILED\n' + err.message));
 }
 
 async function fetchBlockedDates() {
