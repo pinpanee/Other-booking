@@ -949,11 +949,7 @@ function doBook() {
     <div class="m-row" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(212,216,220,0.08);">
       <span>Name</span><span>${name}</span>
     </div>
-    ${email     ? `<div class="m-row"><span>Email</span><span>${email}</span></div>` : ''}
-    ${phone    ? `<div class="m-row"><span>Phone</span><span>${phone}</span></div>` : ''}
-    ${igHandle ? `<div class="m-row"><span>Instagram</span><span>${igHandle}</span></div>` : ''}
     ${contact  ? `<div class="m-row"><span>Contact via</span><span>${contact}</span></div>` : ''}
-    ${attachedFiles.length ? `<div class="m-row"><span>Inspo Pics</span><span>${attachedFiles.length} image${attachedFiles.length>1?'s':''} attached</span></div>` : ''}
     ${notes    ? `<div class="m-row"><span>Notes</span><span style="max-width:260px;">${notes}</span></div>` : ''}
   `;
 
@@ -1104,7 +1100,6 @@ function copyConfirmLink() {
     <div class="m-row" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(212,216,220,0.08);">
       <span>Name</span><span>${params.get('name') || '—'}</span>
     </div>
-    ${params.get('ig') ? `<div class="m-row"><span>Instagram</span><span>${params.get('ig')}</span></div>` : ''}
     ${params.get('contact') ? `<div class="m-row"><span>Contact via</span><span>${params.get('contact')}</span></div>` : ''}
   `;
   const calUrl = params.get('cal');
