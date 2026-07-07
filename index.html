@@ -501,11 +501,18 @@ function parseSheetDate(raw) {
 }
 
 // Parse HH:MM or HH.MM → total minutes from midnight
+// Also tolerates Sheets stripping a trailing zero from a plain-number
+// cell (e.g. 11.30 entered as a number gets displayed/exported as
+// "11.3"). A single digit after the separator is treated as the tens
+// digit of the minutes (i.e. "11.3" → 11:30, not 11:03), since that's
+// the only way Sheets' auto-formatting drops a digit here.
 function parseTime(raw) {
   if (!raw || !raw.trim()) return null;
-  const m = raw.trim().match(/^(\d{1,2})[:\.](\d{2})$/);
+  const m = raw.trim().match(/^(\d{1,2})[:\.](\d{1,2})$/);
   if (!m) return null;
-  return parseInt(m[1]) * 60 + parseInt(m[2]);
+  let minsStr = m[2];
+  if (minsStr.length === 1) minsStr += '0';
+  return parseInt(m[1]) * 60 + parseInt(minsStr);
 }
 
 // Parse CSV text → array of row arrays
