@@ -464,8 +464,8 @@
     <p style="font-family:'IBM Plex Mono',monospace; font-size:10px; line-height:1.8;"><span style="color:var(--steel-shine); opacity:0.65;">Any inquiries? DM via Instagram:</span> <a href="https://instagram.com/other___0.01" target="_blank" style="color:var(--electric); text-decoration:none; letter-spacing:0.05em;">other___0.01</a></p>
   </div>
     <div class="btn-dl-row" style="display:flex; gap:0; border-top:1px solid var(--border);">
-      <button class="btn-cls btn-dl" onclick="downloadConfirmation()" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center; flex:1.5 1 0; width:auto; white-space:normal;">↓ SAVE<br>BOOKING DETAILS</button>
-      <a id="btn-cal" href="#" target="_blank" class="btn-cls" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center; text-decoration:none; flex:0.85 1 0; width:auto;">📅 ADD TO CALENDAR</a>
+      <button class="btn-cls btn-dl" onclick="downloadConfirmation()" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center; flex:0.7 1 0; width:auto; white-space:nowrap;">↓ SAVE</button>
+      <a id="btn-cal" href="#" target="_blank" class="btn-cls" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center; text-decoration:none; flex:1.3 1 0; width:auto; white-space:nowrap; font-size:11px;">📅 ADD TO CALENDAR</a>
       <button class="btn-cls" onclick="closeModal()" style="border-top:none; flex:0 0 80px; padding-top:17.5px; padding-bottom:17.5px; font-size:17px; position:relative; top:-2px;">×</button>
     </div>
   </div>
@@ -1165,7 +1165,7 @@ function downloadConfirmation() {
     captureConfirmation(ref)
       .catch(() => {})
       .finally(() => {
-        if (btn) { btn.innerHTML = '↓ SAVE<br>BOOKING DETAILS'; btn.disabled = false; }
+        if (btn) { btn.innerHTML = '↓ SAVE'; btn.disabled = false; }
       });
   }
 
