@@ -943,7 +943,7 @@ function doBook() {
 
   document.getElementById('modal-rows').innerHTML = `
     <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);">
-      <span>Services</span><span>${S.svcs.map(s=>s.name).join(', ')}</span>
+      <span>Services</span><span>${groupServicesByCategory(S.svcs)}</span>
     </div>
     <div class="m-row"><span>Date</span><span>${ds}</span></div>
     <div class="m-row"><span>Time</span><span>${S.time}</span></div>
@@ -1032,13 +1032,22 @@ function doBook() {
   }
 }
 
+function groupServicesByCategory(svcs) {
+  const groups = {};
+  svcs.forEach(s => {
+    if (!groups[s.cat]) groups[s.cat] = [];
+    groups[s.cat].push(s.name);
+  });
+  return Object.keys(groups).map(cat => `${cat.toUpperCase()}: ${groups[cat].join(', ')}`).join(' · ');
+}
+
 function buildCalendarUrl() {
   const apptDay   = String(S.date.getDate()).padStart(2,'0');
   const apptMonth = String(S.date.getMonth()+1).padStart(2,'0');
   const apptYear  = String(S.date.getFullYear());
   const timeClean = S.time.replace(':','') + '00';
   const dates = `${apptYear}${apptMonth}${apptDay}T${timeClean}/${apptYear}${apptMonth}${apptDay}T${timeClean}`;
-  const serviceNames = S.svcs.map(s => s.name).join(', ');
+  const serviceNames = groupServicesByCategory(S.svcs);
   const text = encodeURIComponent(`★ ${serviceNames} ★ at OTHER___0.01`);
   const details = encodeURIComponent(serviceNames);
   const location = encodeURIComponent('https://other-location.vercel.app/');
