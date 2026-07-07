@@ -943,7 +943,10 @@ function doBook() {
 
   document.getElementById('modal-rows').innerHTML = `
     <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);">
-      <span>Services</span><span>${groupServicesByCategory(S.svcs, true)}</span>
+      <span>Name</span><span>${name}</span>
+    </div>
+    <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);">
+      <span>Service(s)</span><span>${groupServicesByCategory(S.svcs, true)}</span>
     </div>
     <div class="m-row"><span>Date</span><span>${ds}</span></div>
     <div class="m-row"><span>Time</span><span>${S.time}</span></div>
@@ -1090,7 +1093,7 @@ function copyConfirmLink() {
   document.getElementById('confirm-ref').textContent = ref;
   document.getElementById('modal-rows').innerHTML = `
     <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);">
-      <span>Services</span><span>${params.get('services') || '—'}</span>
+      <span>Service(s)</span><span>${params.get('services') || '—'}</span>
     </div>
     <div class="m-row"><span>Date</span><span>${params.get('date') || '—'}</span></div>
     <div class="m-row"><span>Time</span><span>${params.get('time') || '—'}</span></div>
