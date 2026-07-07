@@ -1,5 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/confirm/:ref", "destination": "/index.html" }
-  ]
-}
