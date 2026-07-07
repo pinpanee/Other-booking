@@ -943,7 +943,7 @@ function doBook() {
 
   document.getElementById('modal-rows').innerHTML = `
     <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);">
-      <span>Services</span><span>${groupServicesByCategory(S.svcs)}</span>
+      <span>Services</span><span>${groupServicesByCategory(S.svcs, true)}</span>
     </div>
     <div class="m-row"><span>Date</span><span>${ds}</span></div>
     <div class="m-row"><span>Time</span><span>${S.time}</span></div>
@@ -1032,13 +1032,18 @@ function doBook() {
   }
 }
 
-function groupServicesByCategory(svcs) {
+function groupServicesByCategory(svcs, asHtml = false) {
   const groups = {};
   svcs.forEach(s => {
     if (!groups[s.cat]) groups[s.cat] = [];
     groups[s.cat].push(s.name);
   });
-  return Object.keys(groups).map(cat => `${cat.toUpperCase()}: ${groups[cat].join(', ')}`).join(' · ');
+  return Object.keys(groups).map(cat => {
+    const label = asHtml
+      ? `<span style="color:var(--electric);">${cat.toUpperCase()}</span>`
+      : cat.toUpperCase();
+    return `${label} ${groups[cat].join(', ')}`;
+  }).join(' · ');
 }
 
 function buildCalendarUrl() {
