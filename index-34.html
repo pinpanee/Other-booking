@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5">
+<title>Booking Request — Other___0.01</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Syne+Mono&family=Syne:wght@400;600;800&family=JetBrains+Mono:wght@400;700;800&family=Montserrat:wght@700;800&family=Nunito+Sans:wght@700;800&family=Josefin+Sans:wght@700&family=Roboto+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --steel-light: #d4d8dc;
+    --steel-mid:   #8a9199;
+    --steel-dark:  #3a3f45;
+    --steel-deep:  #1c1f22;
+    --steel-shine: #eef0f2;
+    --wood-light:  #c8a97e;
+    --wood-mid:    #9b7a52;
+    --wood-dark:   #5c3d1e;
+    --electric:    #0a6fff;
+    --electric-glow: rgba(10,111,255,0.35);
+    --electric-dim:  rgba(10,111,255,0.12);
+    --bg:          #16191c;
+    --surface:     #1e2226;
+    --border:      rgba(212,216,220,0.1);
+    --border-wood: rgba(200,169,126,0.2);
+    --text:        #d4d8dc;
+    --muted:       rgba(212,216,220,0.45);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'IBM Plex Mono', monospace; cursor: crosshair; }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+    background:
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.013) 2px, rgba(255,255,255,0.013) 3px),
+      repeating-linear-gradient(180deg, transparent, transparent 60px, rgba(255,255,255,0.007) 60px, rgba(255,255,255,0.007) 61px);
+  }
+  body::after {
+    content: ''; position: fixed; inset: -50%; width: 200%; height: 200%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9997; opacity: 0.4; animation: grain 0.8s steps(1) infinite;
+  }
+  @keyframes grain {
+    0%  { transform: translate(0,0); }    25% { transform: translate(-2%,-4%); }
+    50% { transform: translate(-5%,2%); } 75% { transform: translate(3%,-1%); }
+    100%{ transform: translate(2%,-3%); }
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed; top:0; left:0; right:0; z-index: 500; height: 64px;
+    display: flex; justify-content: space-between; align-items: center; padding: 0 16px;
+    background: rgba(22,25,28,0.84); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border);
+  }
+  header::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(255,255,255,0.04) 0%,transparent 100%); pointer-events:none; }
+  .logo { font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:16px; letter-spacing:-0.02em; color:#fff; position:relative; z-index:1; }
+  .logo em { font-style:normal; color:#fff; text-shadow:none; vertical-align:-0.35em; margin: 0 2px 0 3px; opacity:0.85; }
+  .logo .logo-word { color:#fff; opacity:0.9; }
+  nav { display:flex; gap:36px; position:relative; z-index:1; }
+  nav a { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+  nav a:hover { color:var(--electric); }
+  .header-appt { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.25em; text-transform:uppercase; color:var(--muted); position:relative; z-index:1; margin-left:auto; }
+
+  /* ── WOOD BAND ── */
+  .wood-band { height:10px; background:linear-gradient(90deg,var(--wood-dark) 0%,var(--wood-mid) 20%,var(--wood-light) 45%,var(--wood-mid) 70%,var(--wood-dark) 100%); position:relative; overflow:hidden; }
+  .wood-band::after { content:''; position:absolute; inset:0; background:repeating-linear-gradient(89deg,transparent,transparent 7px,rgba(0,0,0,0.14) 7px,rgba(0,0,0,0.14) 8px); }
+
+  .sec-eyebrow { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--electric); margin-bottom:12px; }
+
+  /* ── CALENDAR ── */
+  .cal-wrap { border:1px solid var(--border); overflow:hidden; background:var(--surface); box-shadow:0 0 40px rgba(0,0,0,0.3); position:relative; }
+  .cal-wrap::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,0.04) 0%,transparent 50%); pointer-events:none; z-index:1; }
+
+  .cal-nav { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); position:relative; z-index:2; }
+  .cal-title { display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .cal-month-name { font-family:'DM Serif Display',serif; font-size:18px; color:var(--steel-shine); }
+  .cal-year { font-family:'Syne Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.15em; }
+  .cal-arr { background:none; border:1px solid var(--border); color:var(--text); width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:crosshair; font-size:13px; transition:all 0.2s; font-family:monospace; }
+  .cal-arr:hover { border-color:var(--electric); color:var(--electric); box-shadow:0 0 12px var(--electric-dim); }
+
+  .cal-dnames { display:grid; grid-template-columns:repeat(7,1fr); border-bottom:1px solid var(--border); position:relative; z-index:2; }
+  .cal-dn { text-align:center; padding:10px 2px; font-family:'Syne Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); }
+
+  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); position:relative; z-index:2; }
+  .c-cell { aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:12px; font-family:'Syne Mono',monospace; cursor:crosshair; transition:all 0.15s; border:1px solid transparent; position:relative; color:var(--text); }
+  .c-cell.other { color:rgba(212,216,220,0.16); cursor:default; }
+  .c-cell.past  { color:rgba(212,216,220,0.18); cursor:default; }
+  .c-cell.blocked { color:rgba(212,216,220,0.22); cursor:not-allowed; }
+  .c-cell.today { color:var(--electric); }
+  .c-cell.today::after { content:''; position:absolute; bottom:4px; left:50%; transform:translateX(-50%); width:3px; height:3px; background:var(--electric); border-radius:50%; box-shadow:0 0 6px var(--electric); }
+  .c-cell.avail:hover { background:rgba(10,111,255,0.1); border-color:var(--electric-dim); color:var(--electric); }
+  .c-cell.picked { background:var(--electric); color:#fff; box-shadow:0 0 20px var(--electric-glow); font-weight:700; }
+
+  /* cal loading state */
+  .cal-loading { display:flex; align-items:center; justify-content:center; gap:10px; padding:20px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.1em; border-top:1px solid var(--border); }
+  .cal-dot { width:5px; height:5px; background:var(--electric); border-radius:50%; animation:caldot 1.2s ease-in-out infinite; }
+  .cal-dot:nth-child(2) { animation-delay:0.2s; }
+  .cal-dot:nth-child(3) { animation-delay:0.4s; }
+  @keyframes caldot { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+
+  /* ── SLOTS — inside cal-wrap, inherits its width ── */
+  .slots-sec { padding:8px 0 0; display:none; }
+  .slots-sec.visible { display:block; }
+  .slots-lbl { font-family:'Syne Mono',monospace; font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+  .slots-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; }
+  .slot { padding:9px 2px; text-align:center; font-family:'Syne Mono',monospace; font-size:11px; border:1px solid var(--border); background:none; color:var(--text); cursor:crosshair; transition:all 0.15s; }
+  .slot:hover { border-color:var(--electric); color:var(--electric); box-shadow:0 0 10px var(--electric-dim); }
+  .slot.picked { background:var(--electric); color:#fff; border-color:var(--electric); box-shadow:0 0 16px var(--electric-glow); }
+  .slot.off { opacity:0.2; cursor:not-allowed; pointer-events:none; }
+
+  /* ── MENU TABS ── */
+  .menu-tabs { display:flex; gap:0; border:1px solid var(--border); margin-bottom:1px; }
+  .menu-tab { flex:1; padding:9px 8px; background:none; border:none; border-right:1px solid var(--border); color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:12.5px; cursor:crosshair; transition:all 0.2s; }
+  .menu-tab:last-child { border-right:none; }
+  .menu-tab:hover { color:var(--steel-shine); background:rgba(255,255,255,0.03); }
+  .menu-tab.active { color:#fff; background:var(--electric); opacity:0.9; }
+  .menu-panel { display:none; border:1px solid var(--border); border-top:none; overflow:hidden; }
+  .menu-panel.active { display:block; }
+
+  /* ── SERVICE ROWS ── */
+  .svc-row { padding:10px 12px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; cursor:crosshair; transition:background 0.2s; position:relative; gap:16px; overflow:hidden; }
+  .svc-row::after { content:''; position:absolute; left:0; top:0; bottom:0; width:2px; background:var(--electric); box-shadow:0 0 8px var(--electric-glow); transform:scaleY(0); transition:transform 0.2s; transform-origin:bottom; }
+  .svc-row:last-child { border-bottom:none; }
+  .svc-row:hover { background:rgba(10,111,255,0.06); }
+  .svc-row:hover::after { transform:scaleY(1); }
+  .svc-row.sel { background:rgba(10,111,255,0.11); }
+  .svc-row.sel::after { transform:scaleY(1); }
+  .svc-check { width:16px; height:16px; border:1px solid var(--steel-mid); flex-shrink:0; position:relative; transition:all 0.15s; margin-top:1px; }
+  .svc-row.sel .svc-check { background:var(--electric); border-color:var(--electric); box-shadow:0 0 8px var(--electric-glow); }
+  .svc-row.sel .svc-check::after { content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; font-family:'IBM Plex Mono',monospace; }
+  .svc-row:hover .svc-check { border-color:var(--electric); }
+  .svc-body { flex:1; min-width:0; }
+  .svc-name { font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px; color:var(--steel-shine); margin-bottom:4px; text-transform:uppercase; }
+  .svc-tag  { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--electric); margin-bottom:3px; }
+  .svc-desc { font-family:'IBM Plex Mono',monospace; font-size:8px; font-style:italic; color:var(--muted); line-height:1.3; }
+
+  /* ── SELECTED PANEL ── */
+  .sel-svc { border:1px solid var(--border); border-left:2px solid var(--electric); padding:18px 22px; margin-bottom:24px; background:var(--electric-dim); min-height:72px; box-shadow:0 0 20px rgba(10,111,255,0.08); }
+  .sel-lbl { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; white-space:nowrap; opacity:0.8; }
+  .sel-empty { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); line-height:1.6; }
+  .sel-list { display:flex; flex-direction:column; gap:0; }
+  .sel-item { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid rgba(212,216,220,0.07); gap:8px; }
+  .sel-item:last-child { border-bottom:none; }
+  .sel-item-name { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--steel-shine); flex:1; }
+  .sel-remove { background:none; border:none; color:var(--muted); font-size:14px; cursor:crosshair; padding:2px 4px; line-height:1; transition:color 0.15s; }
+  .sel-remove:hover { color:#ff4444; }
+  .sel-total { margin-top:12px; padding-top:10px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .sel-total-lbl { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); }
+  .sel-total-val { font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:14px; color:var(--electric); text-shadow:0 0 10px var(--electric-glow); }
+
+  /* ── FORM ── */
+  .f-field { margin-bottom:16px; }
+  .f-lbl { display:block; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .f-in,.f-ta { width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:13px; padding:12px 15px; outline:none; transition:border-color 0.2s,box-shadow 0.2s; cursor:crosshair; }
+  .f-in::placeholder,.f-ta::placeholder { color:rgba(212,216,220,0.2); }
+  .f-in:focus,.f-ta:focus { border-color:var(--electric); box-shadow:0 0 16px var(--electric-dim); }
+  .f-ta { resize:vertical; min-height:120px; }
+  .f-select { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(212,216,220,0.4)'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; cursor:crosshair; }
+  .f-select option { background:var(--surface); color:var(--text); }
+
+  /* ── NOTICE ── */
+  .booking-notice { display:flex; gap:14px; align-items:flex-start; border:1px solid var(--border-wood); background:rgba(200,169,126,0.05); padding:18px 20px; margin-bottom:20px; margin-top:4px; }
+  .notice-icon { color:var(--wood-light); font-size:16px; flex-shrink:0; margin-top:1px; opacity:0.8; }
+  .booking-notice p { font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.85; color:var(--muted); letter-spacing:0.02em; }
+
+  /* ── BUTTONS ── */
+  .btn-book { width:100%; height:50px; padding:0 32px; background:var(--electric); color:#fff; font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:13px; letter-spacing:0.1em; text-transform:uppercase; border:none; cursor:crosshair; position:relative; overflow:hidden; transition:all 0.25s; margin-top:8px; box-shadow:0 0 32px var(--electric-glow); display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1.25; }
+  .btn-book::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); transform:translateX(-100%); transition:transform 0.5s; }
+  .btn-book:hover::before { transform:translateX(100%); }
+  .btn-book:hover { box-shadow:0 0 48px var(--electric-glow); transform:translateY(-1px); }
+  .btn-book:not(:disabled) { opacity:0.9; }
+  .btn-book:disabled { opacity:0.28; cursor:not-allowed; transform:none; box-shadow:none; }
+
+  /* ── UPLOAD ── */
+  .upload-zone { border:1px dashed rgba(212,216,220,0.2); padding:28px 20px; text-align:center; cursor:crosshair; transition:all 0.2s; background:var(--surface); display:flex; flex-direction:column; align-items:center; justify-content:flex-start; min-height:100px; max-height:160px; overflow:hidden; }
+  .upload-zone:hover,.upload-zone.drag-over { border-color:var(--electric); background:var(--electric-dim); box-shadow:0 0 20px var(--electric-dim); }
+  .upload-icon { font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; color:var(--electric); letter-spacing:0.15em; margin-bottom:8px; }
+  .preview-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; width:100%; margin-top:6px; }
+  .preview-item { position:relative; aspect-ratio:1; overflow:hidden; border:1px solid var(--border); }
+  .preview-item img { width:100%; height:100%; object-fit:cover; display:block; }
+  .preview-remove { position:absolute; top:3px; right:3px; width:18px; height:18px; background:rgba(10,10,10,0.85); border:none; color:#fff; font-size:11px; display:flex; align-items:center; justify-content:center; cursor:crosshair; opacity:0; transition:opacity 0.15s; }
+  .preview-item:hover .preview-remove { opacity:1; }
+
+  /* ── OVERLAY ── */
+  .overlay { position:fixed; inset:0; background:rgba(22,25,28,0.93); backdrop-filter:blur(12px); z-index:1000; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+  .overlay.show { opacity:1; pointer-events:all; }
+  .confirm-page { background:var(--bg); width:100%; max-width:640px; max-height:90vh; overflow-y:auto; border:1px solid var(--border); transform:translateY(16px); transition:transform 0.35s; box-shadow:0 0 80px rgba(10,111,255,0.15); }
+  .overlay.show .confirm-page { transform:translateY(0); }
+  .confirm-header { display:flex; justify-content:space-between; align-items:center; height:58px; padding:0 16px; border-bottom:1px solid var(--border); background:rgba(22,25,28,0.84); backdrop-filter:blur(16px); }
+  .confirm-header-label { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.25em; color:var(--electric); }
+  .confirm-ref { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); border:1px solid var(--border); padding:6px 12px; }
+  .confirm-banner { display:flex; align-items:flex-start; gap:16px; margin:20px 28px; padding:14px 20px 10px; background:rgba(10,111,255,0.08); border:1px solid rgba(10,111,255,0.25); }
+  .confirm-banner-icon { width:30px; height:30px; background:var(--electric); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; line-height:1; color:#fff; flex-shrink:0; box-shadow:0 0 16px var(--electric-glow); padding-top:1px; }
+  .confirm-banner-title { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:15px; color:var(--steel-shine); margin-bottom:4px; }
+  .confirm-banner-sub { font-family:'IBM Plex Mono',monospace; font-size:10px; line-height:1.7; color:var(--muted); padding-bottom:5px; }
+  .confirm-top { padding:20px 28px; border-bottom:1px solid var(--border); }
+  .confirm-sub { font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.8; color:var(--muted); }
+  .confirm-summary { padding:28px; border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:10px; }
+  .confirm-notice { padding:6px 28px 4px; border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:4px; }
+  .cn-row { display:flex; gap:14px; align-items:flex-start; font-family:'IBM Plex Mono',monospace; font-size:10px; line-height:1.5; color:var(--muted); }
+  .cn-icon { color:var(--wood-light); flex-shrink:0; }
+  .m-row { display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:10px; gap:16px; }
+  .m-row span:first-child { color:var(--muted); flex-shrink:0; white-space:nowrap; }
+  .m-row span:last-child  { color:var(--steel-shine); text-align:right; }
+  .btn-cls { display:block; width:100%; background:none; border:none; border-top:1px solid var(--border); color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11px; padding:15px; cursor:crosshair; letter-spacing:0.1em; transition:all 0.2s; text-align:center; }
+  .btn-cls:hover { color:var(--electric); background:var(--electric-dim); }
+
+  /* ── REVEAL ── */
+  .reveal { opacity:0; transform:translateY(20px); transition:opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in { opacity:1; transform:translateY(0); }
+
+  /* ── FOOTER ── */
+  footer { border-top:1px solid var(--border); padding:24px 16px; display:flex; justify-content:space-between; align-items:center; background:var(--surface); }
+  .foot-logo { font-family:'IBM Plex Mono',monospace; font-weight:800; font-size:15px; color:var(--steel-shine); }
+  .foot-logo em { font-style:normal; color:var(--electric); text-shadow:0 0 10px var(--electric-glow); }
+  .foot-copy { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.1em; }
+
+  /* ── LAYOUT GRIDS ── */
+  .booking-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 24px 8px 32px;
+    align-items: start;
+  }
+  .details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* ── HERO IMAGE ── */
+  .hero-banner {
+    width: 100%;
+    height: 220px;
+    margin-top: 64px; /* clear fixed header */
+    overflow: hidden;
+    position: relative;
+  }
+  .hero-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    filter: brightness(0.85);
+  }
+  .hero-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, var(--bg) 100%);
+  }
+
+  @media (max-width: 600px) {
+    .confirm-page { margin: 8px; max-height: 95vh; }
+    .confirm-top,.confirm-summary,.confirm-notice { padding: 20px 16px; }
+  }
+
+
+
+
+</style>
+<script>
+  (function() {
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+    s.onload = function() {
+      emailjs.init('NiBoQ_1Z2sNTVK1Jb');
+      console.log('EmailJS ready');
+    };
+    s.onerror = function() { console.warn('EmailJS failed to load'); };
+    document.head.appendChild(s);
+  })();
+</script>
+</head>
+<body>
+
+<header>
+  <div class="logo" style="color:var(--electric); font-family:'Roboto Mono',monospace;"><span style="opacity:0.25; margin-right:5px;">★</span>OTHE<span style="margin-right:2px;">R</span><span style="display:inline-block; width:2.1ch; height:2px; background:var(--electric); vertical-align:-0.1em; margin:0 0;"></span>O.O1<span style="opacity:0.25; margin-left:2.5px;">★</span></div>
+  <div class="header-appt">BY APPOINTMENT ONLY</div>
+  <nav></nav>
+</header>
+
+<!-- HERO BANNER -->
+<div class="hero-banner">
+  <img src="data:image/jpeg;base64,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" alt="Other___0.01">
+</div>
+
+<section id="booking" style="padding-top:0; padding-bottom:0;">
+  <div class="booking-grid">
+
+    <!-- LEFT: BUILT-IN CALENDAR -->
+    <div class="reveal" style="min-width:0;">
+      <div class="sec-eyebrow">01 / Availability</div>
+
+      <div class="cal-wrap">
+        <div class="cal-nav">
+          <button class="cal-arr" onclick="shiftMo(-1)">‹</button>
+          <div class="cal-title">
+            <span class="cal-month-name" id="cal-label-month">—</span>
+            <span class="cal-year" id="cal-label-year">—</span>
+          </div>
+          <button class="cal-arr" onclick="shiftMo(1)">›</button>
+        </div>
+        <div class="cal-dnames">
+          <div class="cal-dn">Mo</div><div class="cal-dn">Tu</div><div class="cal-dn">We</div>
+          <div class="cal-dn">Th</div><div class="cal-dn">Fr</div><div class="cal-dn">Sa</div><div class="cal-dn">Su</div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="cal-loading" id="cal-loading">
+          <div class="cal-dot"></div><div class="cal-dot"></div><div class="cal-dot"></div>
+          <span>Loading availability…</span>
+        </div>
+      </div>
+
+      <!-- Sheet sync status + manual refresh -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin:6px 0 4px; padding:0 2px;">
+        <span id="sheet-status" style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.1em; color:var(--muted);">↻ Syncing…</span>
+        <button onclick="fetchBlockedDates()" style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; background:none; border:1px solid var(--border); color:var(--muted); padding:4px 10px; cursor:crosshair; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--electric)';this.style.color='var(--electric)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">↻ Refresh</button>
+      </div>
+
+      <div class="slots-sec" id="slots-sec">
+        <div class="slots-lbl" id="slots-lbl">Available Times</div>
+        <div class="slots-grid" id="slots-grid"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: MENU -->
+    <div class="reveal" style="min-width:0;">
+      <div class="sec-eyebrow">02 / Menu</div>
+      <div class="menu-tabs">
+        <button class="menu-tab active" onclick="switchTab('hair',this)">HAIR</button>
+        <button class="menu-tab" onclick="switchTab('nails',this)">NAILS</button>
+        <button class="menu-tab" onclick="switchTab('beards',this)">BEARD</button>
+      </div>
+
+      <!-- HAIR -->
+      <div class="menu-panel active" id="panel-hair">
+        <div class="svc-row" onclick="pickSvc(this,'Cut','Hair',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Cut ✃</div><div class="svc-desc" style="white-space:nowrap;">tailored precision cuts</div></div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Colour','Hair',180)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Colour</div><div class="svc-desc">full colour, highlights or creative work — let's discuss!</div></div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Hair / Scalp Treatment','Hair',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Hair / Scalp Treatment</div><div class="svc-desc">targeted care for hair and scalp health</div></div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Cold Perm','Hair',180)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Cold Perm</div><div class="svc-desc">add waves, texture &amp; volume</div></div>
+        </div>
+      </div>
+
+      <!-- NAILS -->
+      <div class="menu-panel" id="panel-nails">
+        <div class="svc-row" onclick="pickSvc(this,'Gel Overlay + Nail Art','Nails',150)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Gel Overlay + Nail Art</div><div class="svc-tag">Natural Nail</div><div class="svc-desc">strengthen your natural nails with builder gel</div></div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Gel Extensions + Nail Art','Nails',240)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Gel Extensions + Nail Art</div><div class="svc-tag">Extensions</div><div class="svc-desc">show me your nail inspo!</div></div>
+        </div>
+      </div>
+
+      <!-- BEARDS -->
+      <div class="menu-panel" id="panel-beards">
+        <div class="svc-row" onclick="pickSvc(this,'Hot Towel Shave','Beard',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Hot Towel Shave</div><div class="svc-desc">traditional straight razor shave</div></div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Shape + Trim','Beard',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Shape + Trim</div><div class="svc-desc">defined lines &amp; balanced shape</div></div>
+        </div>
+        <div class="svc-row" onclick="pickSvc(this,'Tint / Colour','Beard',90)">
+          <div class="svc-check"></div>
+          <div class="svc-body"><div class="svc-name">Tint / Colour</div><div class="svc-desc">subtle to full coverage</div></div>
+        </div>
+      </div>
+
+      <!-- SELECTED SERVICES — shown below menu, aligned with slots -->
+      <div class="sel-svc" style="margin-top:8px;">
+        <div class="sel-lbl">Selected Services</div>
+        <div id="sel-body"><span class="sel-empty" style="color:var(--muted);">No services selected yet</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DETAILS -->
+  <div style="padding:0 8px 40px;" class="reveal">
+    <div class="details-grid" style="margin-bottom:0;">
+      <div class="sec-eyebrow" style="margin-bottom:12px;">03 / Your Details</div>
+      <div class="sec-eyebrow" style="margin-bottom:12px;">04 / Additional Info</div>
+    </div>
+    <div class="details-grid">
+      <div>
+        <div class="f-field"><label class="f-lbl">Name <span style="color:var(--electric);">*</span></label><input class="f-in" type="text" placeholder="Your name" id="f-name"></div>
+        <div class="f-field"><label class="f-lbl">Email</label><input class="f-in" type="email" placeholder="you@example.com" id="f-email"></div>
+        <div class="f-field"><label class="f-lbl">Phone</label><input class="f-in" type="tel" placeholder="+66 000 000 0000" id="f-phone"></div>
+        <div class="f-field"><label class="f-lbl">Instagram</label><input class="f-in" type="text" placeholder="@handle" id="f-instagram" style="text-transform:lowercase;" oninput="this.value=this.value.toLowerCase()"></div>
+        <div class="f-field">
+          <label class="f-lbl">Preferred Contact <span style="color:var(--electric);">*</span></label>
+          <select class="f-in f-select" id="f-contact" onchange="validate(); highlightContactField(this.value);">
+            <option value="" disabled selected>Choose one</option>
+            <option value="Email">Email</option>
+            <option value="SMS">SMS</option>
+            <option value="Line">Line</option>
+            <option value="Instagram DM">Instagram DM</option>
+            <option value="WhatsApp">WhatsApp</option>
+          </select>
+        </div>
+      </div>
+      <div style="position:relative; padding-bottom:60px;">
+        <div class="f-field" style="margin-top:0;">
+          <label class="f-lbl" style="white-space:nowrap;">Inspo Pics <span style="color:var(--muted);font-size:8.5px;font-style:italic;text-transform:none;letter-spacing:0.01em;">— very helpful!</span></label>
+          <div id="preview-container" style="background:rgba(212,216,220,0.06); border:1px solid var(--border); margin-bottom:6px; padding:8px; overflow:hidden; height:100px;">
+            <div class="preview-grid" id="preview-grid" style="width:100%;"></div>
+          </div>
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('f-images').click()" style="height:30px; min-height:30px; max-height:30px; padding:0; justify-content:center; align-items:center; overflow:hidden; background:var(--electric-dim); border-color:rgba(10,111,255,0.4);">
+            <input type="file" id="f-images" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="handleFiles(this.files)">
+            <div class="upload-icon" id="upload-icon-label" style="width:100%; text-align:center; margin-top:7px;">+ ADD IMAGES</div>
+          </div>
+        </div>
+        <div class="f-field"><label class="f-lbl">Notes / References</label><textarea class="f-ta" placeholder="Vision, references, hair history, or anything useful..." id="f-notes"></textarea></div>
+
+        <button class="btn-book" id="book-btn" disabled onclick="doBook()" style="position:absolute; bottom:16px; left:0; right:0; margin:0; display:flex; flex-direction:row; align-items:center; justify-content:center; gap:6px;"><span style="display:flex; flex-direction:column; align-items:flex-start; line-height:1.3; transform:translateX(6px);"><span>Request</span><span>Booking</span></span><span style="font-size:16px; line-height:1; position:relative; top:-1px; transform:translateX(6px);">→</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- CONFIRMATION OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="confirm-page" style="position:relative;">
+    <div style="position:absolute;inset:0;pointer-events:none;z-index:9997;background-image:url('data:image/svg+xml,%3Csvg viewBox=%220 0 512 512%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.75%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22 opacity=%220.05%22/%3E%3C/svg%3E');opacity:0.85;"></div>
+    <div class="confirm-header">
+      <div class="logo" style="color:var(--electric); font-family:'Roboto Mono',monospace;"><span style="opacity:0.25; margin-right:5px;">★</span>OTHE<span style="margin-right:2px;">R</span><span style="display:inline-block; width:2.1ch; height:2px; background:var(--electric); vertical-align:-0.1em; margin:0 0;"></span>O.O1<span style="opacity:0.25; margin-left:2.5px;">★</span></div>
+      <span class="confirm-ref" id="confirm-ref">#OTH-1500-200606</span>
+    </div>
+    <div class="confirm-banner" style="margin-top:8px;">
+      <div class="confirm-banner-icon">✓</div>
+      <div>
+        <div class="confirm-banner-title">Booking Request Sent.</div>
+        <div class="confirm-banner-sub" style="line-height:1.6;"><span style="color:var(--steel-shine); opacity:0.65;">Location & Booking Confirmation</span><br><span style="color:var(--steel-shine); opacity:0.65;">will be sent to you shortly! ⊹܀˙</span></div>
+      </div>
+    </div>
+    <!-- Banner image — full original height -->
+    <div style="width:100%; overflow:hidden; flex-shrink:0; margin-top:-10px;">
+      <img src="data:image/jpeg;base64,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" style="width:100%; height:auto; display:block;">
+    </div>
+
+
+    <div class="confirm-summary" id="modal-rows"></div>
+  <div style="padding:14px 28px; border-bottom:1px solid var(--border);">
+    <p style="font-family:'IBM Plex Mono',monospace; font-size:10px; line-height:1.8;"><span style="color:var(--steel-shine); opacity:0.65;">Any inquiries? DM via Instagram:</span> <a href="https://instagram.com/other___0.01" target="_blank" style="color:var(--electric); text-decoration:none; letter-spacing:0.05em;">other___0.01</a></p>
+  </div>
+    <div class="btn-dl-row" style="display:flex; gap:0; border-top:1px solid var(--border);">
+      <button class="btn-cls btn-dl" onclick="downloadConfirmation()" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center; flex:1.5 1 0; width:auto; white-space:normal;">↓ SAVE<br>BOOKING DETAILS</button>
+      <a id="btn-cal" href="#" target="_blank" class="btn-cls" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center; text-decoration:none; flex:0.85 1 0; width:auto;">📅 ADD TO CALENDAR</a>
+      <button class="btn-cls" onclick="closeModal()" style="border-top:none; flex:0 0 80px; padding-top:17.5px; padding-bottom:17.5px; font-size:17px; position:relative; top:-2px;">×</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// GOOGLE SHEETS BLOCKED DATES + SLOTS
+// Sheet columns: Date (DD-MM-YYYY) | Start (HH:MM) | End (HH:MM)
+// Leave Start/End blank for a full-day block.
+// The sheet is fetched live on every page load — just update the
+// sheet and the booking calendar reflects it within seconds.
+// ─────────────────────────────────────────────────────────────
+
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8bXLOsU9gUZSiqnlKI3KG2-3_17BTprjJ4_zQ5IgxgGHMT2YBzq8FxwPCuDEzgEcDCkEHoI5B_M7b/pub?gid=0&single=true&output=csv';
+
+// Full-day blocked dates — populated from sheet (YYYY-MM-DD)
+let BLOCKED_DATES = new Set();
+
+// Partial-day blocks — populated from sheet
+// Format: { 'YYYY-MM-DD': [[startMins, endMins], ...] }
+const BLOCKED_SLOTS = {};
+
+// Parse DD-MM-YYYY → YYYY-MM-DD
+function parseSheetDate(raw) {
+  if (!raw) return null;
+  raw = raw.trim();
+  // Support DD-MM-YYYY, DD/MM/YYYY, D-M-YYYY etc.
+  const m = raw.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+  if (!m) return null;
+  const [, d, mo, y] = m;
+  return `${y}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
+}
+
+// Parse HH:MM or HH.MM → total minutes from midnight
+function parseTime(raw) {
+  if (!raw || !raw.trim()) return null;
+  const m = raw.trim().match(/^(\d{1,2})[:\.](\d{2})$/);
+  if (!m) return null;
+  return parseInt(m[1]) * 60 + parseInt(m[2]);
+}
+
+// Parse CSV text → array of row arrays
+function parseCSV(text) {
+  return text.trim().split('\n').map(row =>
+    row.split(',').map(cell => cell.replace(/^"|"$/g, '').trim())
+  );
+}
+
+// Multiple CORS proxies to try in order
+const CORS_PROXIES = [
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  url => `https://cors-anywhere.herokuapp.com/${url}`,
+];
+
+async function fetchWithCORSFallback(url) {
+  // Try direct first (works when hosted)
+  try {
+    const r = await fetch(url, { signal: AbortSignal.timeout(4000) });
+    if (r.ok) return r;
+  } catch(e) {}
+
+  // Try each proxy in turn
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const r = await fetch(proxy(url), { signal: AbortSignal.timeout(5000) });
+      if (r.ok) return r;
+    } catch(e) {}
+  }
+  return null;
+}
+
+function applyCSV(text) {
+  const rows = parseCSV(text);
+  BLOCKED_DATES.clear();
+  Object.keys(BLOCKED_SLOTS).forEach(k => delete BLOCKED_SLOTS[k]);
+
+  for (let i = 1; i < rows.length; i++) {
+    const [rawDate, rawStart, rawEnd] = rows[i];
+    const dk = parseSheetDate(rawDate);
+    if (!dk) continue;
+    const startMins = parseTime(rawStart);
+    const endMins   = parseTime(rawEnd);
+    if (startMins !== null && endMins !== null) {
+      if (!BLOCKED_SLOTS[dk]) BLOCKED_SLOTS[dk] = [];
+      BLOCKED_SLOTS[dk].push([startMins, endMins]);
+    } else {
+      BLOCKED_DATES.add(dk);
+    }
+  }
+
+  buildCal();
+  // Rebuild slots if a date is already selected
+  if (S.date) buildSlots();
+  setSheetStatus('synced');
+}
+
+function setSheetStatus(state) {
+  const el = document.getElementById('sheet-status');
+  if (!el) return;
+  if (state === 'loading') { el.textContent = '↻ Syncing…'; el.style.color = 'var(--muted)'; }
+  if (state === 'synced')  { el.textContent = '✓ Up to date'; el.style.color = 'var(--electric)'; }
+  if (state === 'error')   { el.textContent = '⚠ Could not sync'; el.style.color = '#ff6b6b'; }
+}
+
+async function fetchBlockedDates() {
+  setSheetStatus('loading');
+  document.getElementById('cal-loading').style.display = 'flex';
+  try {
+    const res = await fetchWithCORSFallback(SHEET_CSV_URL);
+    if (!res) throw new Error('All fetch methods failed');
+    const text = await res.text();
+    applyCSV(text);
+  } catch(e) {
+    console.warn('Sheet sync failed:', e.message);
+    setSheetStatus('error');
+  } finally {
+    document.getElementById('cal-loading').style.display = 'none';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+const ALL_SLOTS = [
+  '11:00','11:30',
+  '13:00','13:30','14:00','14:30','15:00','15:30',
+  '16:00','16:30','17:00','17:30','18:00','18:30','19:00'
+];
+const CLOSE_MINS = 21 * 60; // studio closes 9pm — last appt starts 19:00, can run until 21:00
+
+const S = {
+  svcs: [], date: null, time: null,
+  mo: new Date().getMonth(), yr: new Date().getFullYear()
+};
+
+// ─────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────
+function getTotalDuration() { return S.svcs.reduce((s, x) => s + x.dur, 0); }
+
+function formatDuration(m) {
+  if (m < 60) return m + ' min';
+  const h = Math.floor(m / 60), r = m % 60;
+  return r ? `${h}h ${r}min` : `${h}h`;
+}
+
+function dateKey(y, m, d) {
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+
+function slotToMins(t) { const [h,m] = t.split(':').map(Number); return h*60+m; }
+
+function getAvailableSlots() {
+  const total = getTotalDuration() || 90;
+  // Get any booked windows for the selected date
+  const dateStr = S.date ? dateKey(S.date.getFullYear(), S.date.getMonth(), S.date.getDate()) : null;
+  const bookedWindows = (dateStr && BLOCKED_SLOTS[dateStr]) || [];
+
+  return ALL_SLOTS.filter(slot => {
+    const start = slotToMins(slot);
+    const end   = start + total;
+    if (end > CLOSE_MINS) return false;
+    // No starts during lunch 12:00–12:59
+    if (start >= 720 && start < 780) return false;
+    // Hide slot if it overlaps any booked window on this date
+    for (const [bStart, bEnd] of bookedWindows) {
+      if (start < bEnd && end > bStart) return false;
+    }
+    return true;
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────────────────────
+function switchTab(cat, btn) {
+  document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + cat).classList.add('active');
+}
+
+// ─────────────────────────────────────────────────────────────
+// SERVICE TOGGLE
+// ─────────────────────────────────────────────────────────────
+function pickSvc(rowEl, name, cat, dur) {
+  const idx = S.svcs.findIndex(s => s.name === name);
+  if (idx > -1) { S.svcs.splice(idx, 1); rowEl.classList.remove('sel'); }
+  else          { S.svcs.push({name,cat,dur}); rowEl.classList.add('sel'); }
+  renderSelPanel(); if (S.date) buildSlots(); validate();
+}
+
+function removeSvc(name) {
+  S.svcs = S.svcs.filter(s => s.name !== name);
+  document.querySelectorAll('.svc-row').forEach(r => {
+    const n = r.querySelector('.svc-name');
+    if (n && n.textContent.replace('✃','').trim() === name) r.classList.remove('sel');
+  });
+  renderSelPanel(); if (S.date) buildSlots(); validate();
+}
+// Global alias so dynamically generated onclick can always find it
+window.removeSvc = removeSvc;
+
+function renderSelPanel() {
+  const body = document.getElementById('sel-body');
+  if (!S.svcs.length) {
+    const hasDate = S.date;
+    if (hasDate) {
+      body.innerHTML = '<span class="sel-empty"><span style="color:var(--muted);">No services selected yet —</span><br><span style="color:var(--electric);font-style:italic;">browse menu above</span></span>';
+    } else {
+      body.innerHTML = '<span class="sel-empty" style="color:var(--muted);">No services selected yet</span>';
+    }
+    return;
+  }
+  const ds = S.date ? S.date.toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'}) : null;
+  let dateTime = '';
+  if (ds && S.time) {
+    dateTime = `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(212,216,220,0.07);display:flex;flex-direction:row;align-items:center;justify-content:space-between;"><span style="color:var(--electric);">${ds}</span><svg width="3" height="3" viewBox="0 0 3 3" style="display:block;flex-shrink:0;opacity:0.8;"><circle cx="1.5" cy="1.5" r="1.5" fill="#8a9199"/></svg><span style="color:var(--electric);">${S.time}</span></div>`;
+  } else if (ds) {
+    dateTime = `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(212,216,220,0.07);display:flex;justify-content:space-between;align-items:center;"><span style="color:var(--electric);">${ds}</span><span style="color:var(--steel-shine);opacity:0.7;font-style:italic;font-size:9px;">pick time</span></div>`;
+  } else if (S.svcs.length > 0) {
+    dateTime = `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid rgba(212,216,220,0.07);">pick a date & time</div>`;
+  }
+  body.innerHTML = `<div class="sel-list">${S.svcs.map(s => `
+    <div class="sel-item">
+      <div class="sel-item-name">${s.name} <span style="color:var(--electric); font-size:10px;">${s.name === 'Hair / Scalp Treatment' ? 'TREATMENT' : s.cat.toUpperCase()}</span></div>
+      <button class="sel-remove" data-svc="${s.name.replace(/"/g,'&quot;')}" onclick="removeSvc(this.dataset.svc)">×</button>
+    </div>`).join('')}${dateTime}</div>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// CALENDAR
+// ─────────────────────────────────────────────────────────────
+function buildCal() {
+  document.getElementById('cal-label-month').textContent = MONTHS[S.mo];
+  document.getElementById('cal-label-year').textContent  = S.yr;
+  const g = document.getElementById('cal-grid');
+  g.innerHTML = '';
+  const today = new Date();
+  // Monday-start: getDay() returns 0=Sun,1=Mon...6=Sat
+  // Remap so Monday=0, Tuesday=1 ... Sunday=6
+  const rawFirst = new Date(S.yr, S.mo, 1).getDay();
+  const first    = (rawFirst + 6) % 7; // shift so Mon=0
+  const days  = new Date(S.yr, S.mo+1, 0).getDate();
+  const prevD = new Date(S.yr, S.mo, 0).getDate();
+
+  for (let i = first-1; i >= 0; i--) mkCell(g, prevD-i, 'other');
+
+  for (let d = 1; d <= days; d++) {
+    const dt        = new Date(S.yr, S.mo, d);
+    const past      = dt < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const isTuesday = dt.getDay() === 2; // studio closed Tuesdays
+    const key       = dateKey(S.yr, S.mo, d);
+    const isBlocked = BLOCKED_DATES.has(key);
+    const isToday   = d===today.getDate() && S.mo===today.getMonth() && S.yr===today.getFullYear();
+    const isSel     = S.date && S.date.getDate()===d && S.date.getMonth()===S.mo && S.date.getFullYear()===S.yr;
+    const unavail   = past || isTuesday || isBlocked;
+
+    let cls = unavail ? (isBlocked && !past ? 'blocked' : 'past') : 'avail';
+    if (isToday && !unavail) cls += ' today';
+    if (isSel   && !unavail) cls += ' picked';
+
+    const el = mkCell(g, d, cls);
+    if (!unavail) el.onclick = () => pickDate(new Date(S.yr, S.mo, d));
+  }
+
+  const rem = 42 - g.children.length;
+  for (let i = 1; i <= rem; i++) mkCell(g, i, 'other');
+}
+
+function mkCell(parent, txt, cls) {
+  const el = document.createElement('div');
+  el.className = 'c-cell ' + cls;
+  el.textContent = txt;
+  parent.appendChild(el);
+  return el;
+}
+
+function shiftMo(d) {
+  S.mo += d;
+  if (S.mo > 11) { S.mo=0; S.yr++; }
+  if (S.mo < 0)  { S.mo=11; S.yr--; }
+  buildCal();
+}
+
+function pickDate(dt) {
+  S.date = dt; S.time = null;
+  buildCal(); buildSlots(); renderSelPanel(); validate();
+}
+
+// ─────────────────────────────────────────────────────────────
+// TIME SLOTS
+// ─────────────────────────────────────────────────────────────
+function buildSlots() {
+  const sec  = document.getElementById('slots-sec');
+  const grid = document.getElementById('slots-grid');
+  if (!S.date) return;
+  sec.style.display = 'block';
+  grid.innerHTML = '';
+  const avail = getAvailableSlots();
+  ALL_SLOTS.forEach(t => {
+    const btn = document.createElement('button');
+    const ok  = avail.includes(t);
+    btn.className = 'slot' + (ok ? '' : ' off');
+    btn.textContent = t;
+    btn.disabled = !ok;
+    if (ok) btn.onclick = () => pickTime(t, btn);
+    if (S.time === t) btn.classList.add('picked');
+    grid.appendChild(btn);
+  });
+}
+
+function pickTime(t, el) {
+  S.time = t;
+  document.querySelectorAll('.slot').forEach(s => s.classList.remove('picked'));
+  el.classList.add('picked');
+  renderSelPanel(); validate();
+}
+
+// ─────────────────────────────────────────────────────────────
+// VALIDATE + SMART CONTACT
+// ─────────────────────────────────────────────────────────────
+function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+function isValidPhone(v) { return /^[+\d\s\-().]{7,20}$/.test(v); }
+
+function highlightContactField(type) {
+  // Always clear first
+  ['f-email','f-phone','f-instagram'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.borderColor = ''; }
+  });
+  const email = document.getElementById('f-email').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const ig    = document.getElementById('f-instagram').value.trim();
+  const hasAny = email || phone || ig;
+  if (hasAny || !type) return; // only highlight if nothing filled yet
+  const bc = 'var(--electric)';
+  if (type === 'Email') {
+    document.getElementById('f-email').style.borderColor = bc;
+  } else if (['SMS','Line','WhatsApp'].includes(type)) {
+    document.getElementById('f-phone').style.borderColor = bc;
+  } else if (type === 'Instagram DM') {
+    document.getElementById('f-instagram').style.borderColor = bc;
+  }
+}
+
+function updateContactOptions() {
+  const email = document.getElementById('f-email').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const ig    = document.getElementById('f-instagram').value.trim();
+  const sel   = document.getElementById('f-contact');
+
+  const hasEmail = email && isValidEmail(email);
+  const hasPhone = phone && isValidPhone(phone);
+  const hasIG    = ig.length > 0;
+
+  const count = [hasEmail, hasPhone, hasIG].filter(Boolean).length;
+
+  // Highlight preferred contact dropdown if phone filled (multiple options to choose from)
+  const contactSel = document.getElementById('f-contact');
+  if (hasPhone && !contactSel.value) {
+    contactSel.style.borderColor = 'var(--electric)';
+  } else {
+    contactSel.style.borderColor = '';
+  }
+
+  if (count === 0) {
+    setContactOptions(['Email','SMS','Line','WhatsApp','Instagram DM'], null);
+  } else if (count === 1 && hasEmail) {
+    setContactOptions(['Email'], 'Email');
+  } else if (count === 1 && hasPhone) {
+    setContactOptions(['SMS','Line','WhatsApp'], null);
+  } else if (count === 1 && hasIG) {
+    setContactOptions(['Instagram DM'], 'Instagram DM');
+  } else {
+    const opts = [];
+    if (hasEmail) opts.push('Email');
+    if (hasPhone) opts.push('SMS','Line','WhatsApp');
+    if (hasIG)    opts.push('Instagram DM');
+    setContactOptions([...new Set(opts)], sel.value || null);
+  }
+}
+
+function setContactOptions(options, autoSelect) {
+  const sel = document.getElementById('f-contact');
+  const current = sel.value;
+  sel.innerHTML = '<option value="" disabled>Choose one</option>';
+  options.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o; opt.textContent = o;
+    sel.appendChild(opt);
+  });
+  if (autoSelect) {
+    sel.value = autoSelect;
+  } else if (options.includes(current)) {
+    sel.value = current;
+  } else {
+    sel.value = '';
+  }
+}
+
+function validate() {
+  const name    = document.getElementById('f-name').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const phone   = document.getElementById('f-phone').value.trim();
+  const ig      = document.getElementById('f-instagram').value.trim();
+  const contact = document.getElementById('f-contact').value;
+
+  const hasEmail = email && isValidEmail(email);
+  const hasPhone = phone && isValidPhone(phone);
+  const hasIG    = ig.length > 0;
+  const hasContact = [hasEmail, hasPhone, hasIG].some(Boolean);
+
+  // Show inline errors
+  showFieldError('f-email', email && !isValidEmail(email) ? 'Invalid email address' : null);
+  showFieldError('f-phone', phone && !isValidPhone(phone) ? 'Invalid phone number' : null);
+
+  const ok = S.svcs.length && S.date && S.time && name && hasContact && contact;
+  document.getElementById('book-btn').disabled = !ok;
+
+  updateContactOptions();
+}
+
+function showFieldError(id, msg) {
+  const field = document.getElementById(id);
+  const errId = id + '-err';
+  let err = document.getElementById(errId);
+  if (msg) {
+    field.style.borderColor = '#ff6b6b';
+    if (!err) {
+      err = document.createElement('div');
+      err.id = errId;
+      err.style.cssText = "font-family:'IBM Plex Mono',monospace;font-size:9px;color:#ff6b6b;margin-top:4px;letter-spacing:0.05em;";
+      field.parentNode.appendChild(err);
+    }
+    err.textContent = msg;
+  } else {
+    field.style.borderColor = '';
+    if (err) err.remove();
+  }
+}
+
+document.getElementById('f-name').addEventListener('input', validate);
+document.getElementById('f-email').addEventListener('input', validate);
+document.getElementById('f-phone').addEventListener('input', validate);
+document.getElementById('f-instagram').addEventListener('input', validate);
+
+// ─────────────────────────────────────────────────────────────
+// SUBMIT
+// ─────────────────────────────────────────────────────────────
+function doBook() {
+  const name    = document.getElementById('f-name').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const phone   = document.getElementById('f-phone').value.trim();
+  const ig      = document.getElementById('f-instagram').value.trim();
+  const contact = document.getElementById('f-contact').value;
+  const notes   = document.getElementById('f-notes').value.trim();
+
+  if (!name) { alert('Please enter your name.'); return; }
+  const hasEmail = email && isValidEmail(email);
+  const hasPhone = phone && isValidPhone(phone);
+  const hasIG    = ig.length > 0;
+  if (!hasEmail && !hasPhone && !hasIG) { alert('Please enter at least one contact method.'); return; }
+  if (email && !isValidEmail(email)) { alert('Please enter a valid email address.'); return; }
+  if (phone && !isValidPhone(phone)) { alert('Please enter a valid phone number.'); return; }
+  if (!contact) { alert('Please select a preferred contact method.'); return; }
+
+  const ds = S.date.toLocaleDateString('en-US', {weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  const igHandle = ig ? (ig.startsWith('@') ? ig : '@'+ig) : null;
+  const total    = getTotalDuration();
+
+  document.getElementById('modal-rows').innerHTML = `
+    <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);">
+      <span>Services</span><span>${groupServicesByCategory(S.svcs, true)}</span>
+    </div>
+    <div class="m-row"><span>Date</span><span>${ds}</span></div>
+    <div class="m-row"><span>Time</span><span>${S.time}</span></div>
+    <div class="m-row" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(212,216,220,0.08);">
+      <span>Name</span><span>${name}</span>
+    </div>
+    ${email     ? `<div class="m-row"><span>Email</span><span>${email}</span></div>` : ''}
+    ${phone    ? `<div class="m-row"><span>Phone</span><span>${phone}</span></div>` : ''}
+    ${igHandle ? `<div class="m-row"><span>Instagram</span><span>${igHandle}</span></div>` : ''}
+    ${contact  ? `<div class="m-row"><span>Contact via</span><span>${contact}</span></div>` : ''}
+    ${attachedFiles.length ? `<div class="m-row"><span>Inspo Pics</span><span>${attachedFiles.length} image${attachedFiles.length>1?'s':''} attached</span></div>` : ''}
+    ${notes    ? `<div class="m-row"><span>Notes</span><span style="max-width:260px;">${notes}</span></div>` : ''}
+  `;
+
+  const now = new Date();
+  const apptDay   = String(S.date.getDate()).padStart(2,'0');
+  const apptMonth = String(S.date.getMonth()+1).padStart(2,'0');
+  const apptYear  = String(S.date.getFullYear()).slice(-2);
+  const apptTime  = S.time.replace(':', '');
+  const ref = `#OTH-${apptTime}-${apptDay}${apptMonth}${apptYear}`;
+  document.getElementById('confirm-ref').textContent = ref;
+  const calUrl = buildCalendarUrl();
+  document.getElementById('btn-cal').href = calUrl;
+  const servicesDisplay = groupServicesByCategory(S.svcs, true);
+  const shareUrl = buildConfirmShareUrl(ref, ds, S.time, servicesDisplay, name, igHandle, contact, calUrl);
+  history.pushState(null, '', shareUrl);
+  document.getElementById('overlay').classList.add('show');
+
+  const trim = (s, n=200) => s ? s.substring(0, n) : '—';
+  const validFiles = attachedFiles.filter(Boolean);
+
+  const IMGBB_KEY = '8c16ed45c3088d72abfec153130bcc8d';
+
+  // Upload a file to ImgBB and return the full-quality image URL
+  function uploadToImgBB(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const base64 = e.target.result.split(',')[1];
+        const form = new FormData();
+        form.append('key', IMGBB_KEY);
+        form.append('image', base64);
+        fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: form })
+          .then(r => r.json())
+          .then(data => {
+            if (data.success) resolve(data.data.url);
+            else reject(new Error('ImgBB upload failed'));
+          })
+          .catch(reject);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function sendEmail(imagesHtml) {
+    emailjs.send('service_other001', 'template_x6qy5fm', {
+      to_email:    'other0.01contact@gmail.com',
+      ref:          ref,
+      client_name:  trim(name),
+      client_email: trim(email),
+      client_phone: trim(phone) || '—',
+      instagram:    trim(igHandle) || '—',
+      contact_via:  trim(contact) || '—',
+      services:     trim(S.svcs.map(s => s.name).join(', ')),
+      date:         trim(ds),
+      time:         trim(S.time),
+      notes:        trim(notes, 500) || '—',
+      images_html:  imagesHtml,
+    }).then(() => console.log('Email sent OK'))
+      .catch(err => console.error('Email send failed:', JSON.stringify(err)));
+  }
+
+  if (validFiles.length === 0) {
+    sendEmail('None');
+  } else {
+    // Upload all images to ImgBB, then send one email with clickable image links
+    Promise.all(validFiles.map(f => uploadToImgBB(f)))
+      .then(urls => {
+        const imagesHtml = urls.map((url, i) =>
+          `<p><a href="${url}" target="_blank">
+             <img src="${url}" style="max-width:400px; max-height:400px; display:block; margin:6px 0;" />
+           </a></p>`
+        ).join('');
+        sendEmail(imagesHtml);
+      })
+      .catch(err => {
+        console.error('ImgBB upload error:', err);
+        sendEmail(`${validFiles.length} image(s) — upload failed, client will send separately`);
+      });
+  }
+}
+
+function groupServicesByCategory(svcs, asHtml = false) {
+  const groups = {};
+  svcs.forEach(s => {
+    if (!groups[s.cat]) groups[s.cat] = [];
+    groups[s.cat].push(s.name);
+  });
+  return Object.keys(groups).map(cat => {
+    const label = asHtml
+      ? `<span style="color:var(--electric);">${cat}</span>`
+      : cat;
+    return `${label} ${groups[cat].join(', ')}`;
+  }).join(' · ');
+}
+
+function buildCalendarUrl() {
+  const apptDay   = String(S.date.getDate()).padStart(2,'0');
+  const apptMonth = String(S.date.getMonth()+1).padStart(2,'0');
+  const apptYear  = String(S.date.getFullYear());
+  const timeClean = S.time.replace(':','') + '00';
+  const dates = `${apptYear}${apptMonth}${apptDay}T${timeClean}/${apptYear}${apptMonth}${apptDay}T${timeClean}`;
+  const serviceNames = groupServicesByCategory(S.svcs);
+  const text = encodeURIComponent(`★ ${serviceNames} ★ at OTHER___0.01`);
+  const details = encodeURIComponent(serviceNames);
+  const location = encodeURIComponent('https://other-location.vercel.app/');
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&details=${details}&location=${location}&ctz=Asia/Bangkok`;
+}
+
+function buildConfirmShareUrl(ref, dsPretty, timeStr, servicesHtml, name, igHandle, contactVia, calUrl) {
+  const params = new URLSearchParams();
+  params.set('date', dsPretty);
+  params.set('time', timeStr);
+  params.set('services', servicesHtml);
+  params.set('name', name);
+  if (igHandle)  params.set('ig', igHandle);
+  if (contactVia) params.set('contact', contactVia);
+  params.set('cal', calUrl);
+  const cleanRef = ref.replace(/^#/, '');
+  return `/confirm/${encodeURIComponent(cleanRef)}?${params.toString()}`;
+}
+
+function copyConfirmLink() {
+  const btn = document.getElementById('btn-copy-link');
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    if (btn) {
+      const prev = btn.textContent;
+      btn.textContent = '✓ LINK COPIED';
+      setTimeout(() => { btn.textContent = prev; }, 1800);
+    }
+  }).catch(() => {
+    if (btn) btn.textContent = 'Copy failed — long-press the address bar instead';
+  });
+}
+
+// Rebuild the confirmation screen if opened directly via a /confirm/ share link
+(function restoreConfirmationFromUrl() {
+  const m = location.pathname.match(/^\/confirm\/([^/]+)/);
+  if (!m) return;
+  const ref = '#' + decodeURIComponent(m[1]);
+  const params = new URLSearchParams(location.search);
+  document.getElementById('confirm-ref').textContent = ref;
+  document.getElementById('modal-rows').innerHTML = `
+    <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);">
+      <span>Services</span><span>${params.get('services') || '—'}</span>
+    </div>
+    <div class="m-row"><span>Date</span><span>${params.get('date') || '—'}</span></div>
+    <div class="m-row"><span>Time</span><span>${params.get('time') || '—'}</span></div>
+    <div class="m-row" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(212,216,220,0.08);">
+      <span>Name</span><span>${params.get('name') || '—'}</span>
+    </div>
+    ${params.get('ig') ? `<div class="m-row"><span>Instagram</span><span>${params.get('ig')}</span></div>` : ''}
+    ${params.get('contact') ? `<div class="m-row"><span>Contact via</span><span>${params.get('contact')}</span></div>` : ''}
+  `;
+  const calUrl = params.get('cal');
+  if (calUrl) document.getElementById('btn-cal').href = calUrl;
+  document.getElementById('overlay').classList.add('show');
+})();
+
+function closeModal() { document.getElementById('overlay').classList.remove('show'); }
+
+function downloadConfirmation() {
+  const btn = document.querySelector('.btn-dl');
+  if (btn) { btn.innerHTML = '↓ Saving…'; btn.disabled = true; }
+
+  function captureEl(el, filename, extraStyles, restoreStyles) {
+    // Apply temporary styles
+    if (extraStyles) Object.assign(el.style, extraStyles);
+    return new Promise(resolve => setTimeout(resolve, 80)).then(() =>
+      html2canvas(el, {
+        backgroundColor: '#16191c',
+        scale: 2,
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth:  window.innerWidth,
+        windowHeight: el.scrollHeight,
+        ignoreElements: node => node.classList && (node.classList.contains('btn-dl-row') || node.classList.contains('btn-cls'))
+      })
+    ).then(canvas => {
+      if (restoreStyles) Object.assign(el.style, restoreStyles);
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }).catch(() => {
+      if (restoreStyles) Object.assign(el.style, restoreStyles);
+    });
+  }
+
+  function captureConfirmation(ref) {
+    const el = document.querySelector('.confirm-page');
+    const prev = { maxHeight: el.style.maxHeight, overflowY: el.style.overflowY };
+    return captureEl(
+      el,
+      `OTHER___0.01-${ref}.png`,
+      { maxHeight: 'none', overflowY: 'visible' },
+      prev
+    );
+  }
+
+  function doCapture() {
+    const ref = document.getElementById('confirm-ref').textContent.replace(/[^a-zA-Z0-9\-]/g,'');
+    captureConfirmation(ref)
+      .catch(() => {})
+      .finally(() => {
+        if (btn) { btn.innerHTML = '↓ SAVE<br>BOOKING DETAILS'; btn.disabled = false; }
+      });
+  }
+
+  if (window.html2canvas) {
+    doCapture();
+  } else {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload = doCapture;
+    document.head.appendChild(s);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// IMAGE UPLOAD
+// ─────────────────────────────────────────────────────────────
+let attachedFiles = [];
+
+function updatePreviewContainer() {
+  const container = document.getElementById('preview-container');
+  const grid = document.getElementById('preview-grid');
+  container.style.display = grid.children.length > 0 ? 'block' : 'none';
+}
+
+function handleFiles(incoming) {
+  Array.from(incoming).filter(f => f.type.startsWith('image/')).forEach(f => {
+    attachedFiles.push(f);
+    const reader = new FileReader();
+    const idx = attachedFiles.length - 1;
+    reader.onload = e => {
+      const item = document.createElement('div');
+      item.className = 'preview-item'; item.dataset.idx = idx;
+      item.innerHTML = `<img src="${e.target.result}" alt="ref"><button class="preview-remove" onclick="removeFile(${idx})">×</button>`;
+      document.getElementById('preview-grid').appendChild(item);
+      updatePreviewContainer();
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+function removeFile(idx) {
+  attachedFiles[idx] = null;
+  const el = document.querySelector(`.preview-item[data-idx="${idx}"]`);
+  if (el) el.remove();
+  attachedFiles = attachedFiles.filter(Boolean);
+  document.querySelectorAll('.preview-item').forEach((el,i) => {
+    el.dataset.idx = i;
+    el.querySelector('.preview-remove').setAttribute('onclick', `removeFile(${i})`);
+  });
+  updatePreviewContainer();
+}
+
+const dz = document.getElementById('upload-zone');
+dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', ()  => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
+
+// ─────────────────────────────────────────────────────────────
+// REVEAL ANIMATIONS
+// ─────────────────────────────────────────────────────────────
+const obs = new IntersectionObserver(
+  es => es.forEach(x => { if(x.isIntersecting) x.target.classList.add('in'); }),
+  { threshold: 0.1 }
+);
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+buildCal();
+fetchBlockedDates(); // fetch live blocked dates from Google Sheet
+</script>
+
+</body>
+</html>
