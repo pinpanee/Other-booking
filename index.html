@@ -346,9 +346,9 @@
           <div class="svc-check"></div>
           <div class="svc-body"><div class="svc-name">Colour</div><div class="svc-desc">full colour, highlights or creative work — let's discuss!</div></div>
         </div>
-        <div class="svc-row" onclick="pickSvc(this,'Hair/Scalp Treatment','Hair',90)">
+        <div class="svc-row" onclick="pickSvc(this,'Hair / Scalp Treatment','Hair',90)">
           <div class="svc-check"></div>
-          <div class="svc-body"><div class="svc-name">Hair/Scalp Treatment</div><div class="svc-desc">targeted care for hair and scalp health</div></div>
+          <div class="svc-body"><div class="svc-name">Hair / Scalp Treatment</div><div class="svc-desc">targeted care for hair and scalp health</div></div>
         </div>
         <div class="svc-row" onclick="pickSvc(this,'Cold Perm','Hair',180)">
           <div class="svc-check"></div>
@@ -695,7 +695,7 @@ function renderSelPanel() {
   }
   body.innerHTML = `<div class="sel-list">${S.svcs.map(s => `
     <div class="sel-item">
-      <div class="sel-item-name">${s.name} <span style="color:var(--electric);">${s.cat.toUpperCase()}</span></div>
+      <div class="sel-item-name">${s.name} <span style="color:var(--electric);">${s.name === 'Hair / Scalp Treatment' ? 'TREATMENT' : s.cat.toUpperCase()}</span></div>
       <button class="sel-remove" data-svc="${s.name.replace(/"/g,'&quot;')}" onclick="removeSvc(this.dataset.svc)">×</button>
     </div>`).join('')}${dateTime}</div>`;
 }
