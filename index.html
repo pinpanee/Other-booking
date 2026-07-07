@@ -200,7 +200,7 @@
   .confirm-notice { padding:6px 28px 4px; border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:4px; }
   .cn-row { display:flex; gap:14px; align-items:flex-start; font-family:'IBM Plex Mono',monospace; font-size:10px; line-height:1.5; color:var(--muted); }
   .cn-icon { color:var(--wood-light); flex-shrink:0; }
-  .m-row { display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:10px; gap:16px; }
+  .m-row { display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:12px; gap:16px; }
   .m-row span:first-child { color:var(--muted); flex-shrink:0; white-space:nowrap; }
   .m-row span:last-child  { color:var(--steel-shine); text-align:right; }
   .btn-cls { display:block; width:100%; background:none; border:none; border-top:1px solid var(--border); color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11px; padding:15px; cursor:crosshair; letter-spacing:0.1em; transition:all 0.2s; text-align:center; }
@@ -965,7 +965,7 @@ function doBook() {
   const apptTime  = S.time.replace(':', '');
   const ref = `#OTH-${apptTime}-${apptDay}${apptMonth}${apptYear}`;
   document.getElementById('confirm-ref').textContent = ref;
-  const calUrl = buildCalendarUrl();
+  const calUrl = buildCalendarUrl(ref);
   document.getElementById('btn-cal').href = calUrl;
   const servicesDisplay = groupServicesByCategory(S.svcs, true);
   const shareUrl = buildConfirmShareUrl(ref, ds, S.time, servicesDisplay, name, igHandle, contact, calUrl);
@@ -1050,7 +1050,7 @@ function groupServicesByCategory(svcs, asHtml = false) {
   }).join(' · ');
 }
 
-function buildCalendarUrl() {
+function buildCalendarUrl(ref) {
   const apptDay   = String(S.date.getDate()).padStart(2,'0');
   const apptMonth = String(S.date.getMonth()+1).padStart(2,'0');
   const apptYear  = String(S.date.getFullYear());
@@ -1058,7 +1058,8 @@ function buildCalendarUrl() {
   const dates = `${apptYear}${apptMonth}${apptDay}T${timeClean}/${apptYear}${apptMonth}${apptDay}T${timeClean}`;
   const serviceNames = groupServicesByCategory(S.svcs);
   const text = encodeURIComponent(`★ ${serviceNames} ★ at OTHER___0.01`);
-  const details = encodeURIComponent(serviceNames);
+  const detailsText = ref ? `${serviceNames}\n\nBooking ref: ${ref}` : serviceNames;
+  const details = encodeURIComponent(detailsText);
   const location = encodeURIComponent('https://other-location.vercel.app/');
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&details=${details}&location=${location}&ctz=Asia/Bangkok`;
 }
