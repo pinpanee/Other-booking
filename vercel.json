@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/confirm/:ref", "destination": "/index-36.html" }
+    { "source": "/confirm/:ref", "destination": "/index.html" }
   ]
 }
