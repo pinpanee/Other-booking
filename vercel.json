@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/confirm/:ref", "destination": "/index-36.html" }
+  ]
+}
