@@ -333,7 +333,7 @@
       <div class="menu-tabs">
         <button class="menu-tab active" onclick="switchTab('hair',this)">HAIR</button>
         <button class="menu-tab" onclick="switchTab('nails',this)">NAILS</button>
-        <button class="menu-tab" onclick="switchTab('beards',this)">BEARDS</button>
+        <button class="menu-tab" onclick="switchTab('beards',this)">BEARD</button>
       </div>
 
       <!-- HAIR -->
@@ -695,7 +695,7 @@ function renderSelPanel() {
   }
   body.innerHTML = `<div class="sel-list">${S.svcs.map(s => `
     <div class="sel-item">
-      <div class="sel-item-name">${s.name}</div>
+      <div class="sel-item-name">${s.name} <span style="color:var(--electric);">${s.cat.toUpperCase()}</span></div>
       <button class="sel-remove" data-svc="${s.name.replace(/"/g,'&quot;')}" onclick="removeSvc(this.dataset.svc)">×</button>
     </div>`).join('')}${dateTime}</div>`;
 }
