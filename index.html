@@ -522,17 +522,27 @@ const CORS_PROXIES = [
   url => `https://cors-anywhere.herokuapp.com/${url}`,
 ];
 
+// Append a fresh timestamp so neither the browser's HTTP cache nor
+// Google's publish-CDN cache nor a CORS proxy's cache can serve back
+// a stale copy of the sheet.
+function withCacheBust(url) {
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}_cb=${Date.now()}`;
+}
+
 async function fetchWithCORSFallback(url) {
+  const bustedUrl = withCacheBust(url);
+
   // Try direct first (works when hosted)
   try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(4000) });
+    const r = await fetch(bustedUrl, { signal: AbortSignal.timeout(4000), cache: 'no-store' });
     if (r.ok) return r;
   } catch(e) {}
 
   // Try each proxy in turn
   for (const proxy of CORS_PROXIES) {
     try {
-      const r = await fetch(proxy(url), { signal: AbortSignal.timeout(5000) });
+      const r = await fetch(proxy(bustedUrl), { signal: AbortSignal.timeout(5000), cache: 'no-store' });
       if (r.ok) return r;
     } catch(e) {}
   }
