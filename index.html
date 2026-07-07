@@ -611,7 +611,7 @@ function minsToHHMM(mins) {
 
 // Send the just-booked slot to the Apps Script Web App so it's blocked
 // immediately (before the sheet-sync poll would otherwise pick it up).
-function blockSlot(date, startTime, durationMins) {
+function blockSlot(date, startTime, durationMins, clientName) {
   const [sh, sm] = startTime.split(':').map(Number);
   const startMins = sh * 60 + sm;
   const endMins = startMins + durationMins;
@@ -620,6 +620,7 @@ function blockSlot(date, startTime, durationMins) {
     date:  formatSheetDate(date),
     start: startTime.replace(':', '.'),
     end:   minsToHHMM(endMins),
+    name:  clientName || '',
   };
 
   // Also block it locally right away so the calendar reflects it
@@ -1084,7 +1085,7 @@ function doBook() {
   }
 
   // Block this date/time on the sheet right away so no one else can pick it
-  blockSlot(S.date, S.time, total);
+  blockSlot(S.date, S.time, total, name);
 
   if (validFiles.length === 0) {
     sendEmail('None');
