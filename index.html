@@ -466,9 +466,10 @@
     <div class="btn-dl-row" style="display:flex; gap:0; border-top:1px solid var(--border);">
       <button class="btn-cls btn-dl" onclick="downloadConfirmation()" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center;">↓ SAVE BOOKING DETAILS</button>
       <a id="btn-cal" href="#" target="_blank" class="btn-cls" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center; text-decoration:none;">📅 ADD TO CALENDAR</a>
-      <button id="btn-copy" class="btn-cls" onclick="copyConfirmLink()" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center;">🔗 COPY LINK TO THIS PAGE</button>
-      <div id="pending-note" style="display:none; flex:2; align-items:center; justify-content:center; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.04em; color:var(--muted); padding:8px 10px; line-height:1.5; border-right:1px solid var(--border);">⏳ Full confirmation link<br>(with calendar) is on its way</div>
       <button class="btn-cls" onclick="closeModal()" style="border-top:none; flex:0 0 80px; padding-top:17.5px; padding-bottom:17.5px; font-size:17px; position:relative; top:-2px;">×</button>
+    </div>
+    <div class="btn-dl-row" style="display:flex; gap:0; border-top:1px solid var(--border);">
+      <button id="btn-copy-link" class="btn-cls" onclick="copyConfirmLink()" style="border-top:none; color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center; width:100%;">🔗 COPY LINK TO THIS PAGE</button>
     </div>
   </div>
 </div>
@@ -483,10 +484,6 @@
 // ─────────────────────────────────────────────────────────────
 
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8bXLOsU9gUZSiqnlKI3KG2-3_17BTprjJ4_zQ5IgxgGHMT2YBzq8FxwPCuDEzgEcDCkEHoI5B_M7b/pub?gid=0&single=true&output=csv';
-
-// Apps Script web app — stores/retrieves booking data by ref so confirmation
-// links can be short (/confirm/REF) instead of encoding the whole payload.
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKiHQspmUHy9haUPFeZ6BxFtijlVqwcHDyT954_lwzP4mgWc7Au8Z2DwMSsKHafXrsgA/exec';
 
 // Full-day blocked dates — populated from sheet (YYYY-MM-DD)
 let BLOCKED_DATES = new Set();
@@ -973,29 +970,10 @@ function doBook() {
   document.getElementById('confirm-ref').textContent = ref;
   const calUrl = buildCalendarUrl();
   document.getElementById('btn-cal').href = calUrl;
+  const servicesDisplay = groupServicesByCategory(S.svcs, true);
+  const shareUrl = buildConfirmShareUrl(ref, ds, S.time, servicesDisplay, name, igHandle, contact, calUrl);
+  history.pushState(null, '', shareUrl);
   document.getElementById('overlay').classList.add('show');
-
-  // ── Shareable confirmation link ──
-  // Booking data is saved to the Apps Script backend keyed by pathRef, so the
-  // link itself only needs to carry the ref — no more encoding the whole
-  // payload into the URL. The client's own address bar only ever gets the
-  // PENDING version (no calendar link, copy-link button hidden). The FULL
-  // version — with working calendar link + copy-link button — only ever goes
-  // to you, in the admin notification email, via the admin_link field below.
-  const pathRef    = ref.replace(/^#/, '');
-  const confirmData = { ref, rows: document.getElementById('modal-rows').innerHTML, calUrl };
-  const pendingUrl = `${window.location.origin}/confirm/${encodeURIComponent(pathRef)}?m=pending`;
-  const fullUrl    = `${window.location.origin}/confirm/${encodeURIComponent(pathRef)}?m=full`;
-
-  // Fire-and-forget save to the sheet. Sent as text/plain to avoid a CORS
-  // preflight (Apps Script doesn't handle OPTIONS requests).
-  fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify({ pathRef, ...confirmData })
-  }).catch(err => console.warn('Booking save failed:', err));
-
-  history.replaceState(null, '', pendingUrl);
-  setConfirmMode('pending');
 
   const trim = (s, n=200) => s ? s.substring(0, n) : '—';
   const validFiles = attachedFiles.filter(Boolean);
@@ -1027,7 +1005,6 @@ function doBook() {
     emailjs.send('service_other001', 'template_x6qy5fm', {
       to_email:    'other0.01contact@gmail.com',
       ref:          ref,
-      admin_link:   fullUrl,
       client_name:  trim(name),
       client_email: trim(email),
       client_phone: trim(phone) || '—',
@@ -1089,76 +1066,57 @@ function buildCalendarUrl() {
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&details=${details}&location=${location}&ctz=Asia/Bangkok`;
 }
 
-function closeModal() { document.getElementById('overlay').classList.remove('show'); }
-
-// ─────────────────────────────────────────────────────────────
-// CONFIRMATION LINK — approval-gated reveal
-// 'pending' = client's own view right after submitting: no calendar
-//             link, no copy-link button, just a "still on its way" note.
-// 'full'    = only reachable via the link in your admin email: working
-//             calendar link + a button to copy that exact link to send on.
-// ─────────────────────────────────────────────────────────────
-function setConfirmMode(mode) {
-  const calBtn  = document.getElementById('btn-cal');
-  const copyBtn = document.getElementById('btn-copy');
-  const note    = document.getElementById('pending-note');
-  const isFull  = mode === 'full';
-  calBtn.style.display  = isFull ? 'flex' : 'none';
-  copyBtn.style.display = isFull ? 'flex' : 'none';
-  note.style.display    = isFull ? 'none' : 'flex';
+function buildConfirmShareUrl(ref, dsPretty, timeStr, servicesHtml, name, igHandle, contactVia, calUrl) {
+  const params = new URLSearchParams();
+  params.set('date', dsPretty);
+  params.set('time', timeStr);
+  params.set('services', servicesHtml);
+  params.set('name', name);
+  if (igHandle)  params.set('ig', igHandle);
+  if (contactVia) params.set('contact', contactVia);
+  params.set('cal', calUrl);
+  const cleanRef = ref.replace(/^#/, '');
+  return `/confirm/${encodeURIComponent(cleanRef)}?${params.toString()}`;
 }
 
 function copyConfirmLink() {
-  const btn = document.getElementById('btn-copy');
-  const orig = btn.innerHTML;
+  const btn = document.getElementById('btn-copy-link');
   navigator.clipboard.writeText(window.location.href).then(() => {
-    btn.innerHTML = '✓ COPIED';
-    setTimeout(() => { btn.innerHTML = orig; }, 1600);
-  }).catch(() => alert('Could not copy automatically — copy the link from your address bar instead.'));
-}
-
-// If this page was opened via a confirmation link (?c=...&d=...&m=...), rebuild
-// that exact confirmation screen instead of the normal booking flow.
-async function initFromConfirmLink() {
-  const params = new URLSearchParams(window.location.search);
-  const mode = params.get('m') === 'full' ? 'full' : 'pending';
-
-  // New format: /confirm/REF?m=pending|full — data fetched from Apps Script.
-  const pathMatch = window.location.pathname.match(/\/confirm\/([^/]+)/);
-  if (pathMatch) {
-    const pathRef = decodeURIComponent(pathMatch[1]);
-    try {
-      const res = await fetchWithCORSFallback(`${APPS_SCRIPT_URL}?ref=${encodeURIComponent(pathRef)}`);
-      if (!res) throw new Error('Could not reach booking backend');
-      const data = await res.json();
-      if (!data) throw new Error('No booking found for ref: ' + pathRef);
-      document.getElementById('confirm-ref').textContent = data.ref || ('#' + pathRef);
-      document.getElementById('modal-rows').innerHTML = data.rows || '';
-      document.getElementById('btn-cal').href = data.calUrl || '#';
-      document.getElementById('overlay').classList.add('show');
-      setConfirmMode(mode);
-    } catch (e) {
-      console.error('Could not load confirmation:', e);
+    if (btn) {
+      const prev = btn.textContent;
+      btn.textContent = '✓ LINK COPIED';
+      setTimeout(() => { btn.textContent = prev; }, 1800);
     }
-    return;
-  }
-
-  // Legacy format: ?c=...&m=...&d=<base64> — still supported so old links
-  // already sent out keep working.
-  const d = params.get('d');
-  if (!d) return;
-  try {
-    const data = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(d)))));
-    document.getElementById('confirm-ref').textContent = data.ref || ('#' + (params.get('c') || ''));
-    document.getElementById('modal-rows').innerHTML = data.rows || '';
-    document.getElementById('btn-cal').href = data.calUrl || '#';
-    document.getElementById('overlay').classList.add('show');
-    setConfirmMode(mode);
-  } catch (e) {
-    console.error('Could not parse confirmation link:', e);
-  }
+  }).catch(() => {
+    if (btn) btn.textContent = 'Copy failed — long-press the address bar instead';
+  });
 }
-initFromConfirmLink();
+
+// Rebuild the confirmation screen if opened directly via a /confirm/ share link
+(function restoreConfirmationFromUrl() {
+  const m = location.pathname.match(/^\/confirm\/([^/]+)/);
+  if (!m) return;
+  const ref = '#' + decodeURIComponent(m[1]);
+  const params = new URLSearchParams(location.search);
+  document.getElementById('confirm-ref').textContent = ref;
+  document.getElementById('modal-rows').innerHTML = `
+    <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);">
+      <span>Services</span><span>${params.get('services') || '—'}</span>
+    </div>
+    <div class="m-row"><span>Date</span><span>${params.get('date') || '—'}</span></div>
+    <div class="m-row"><span>Time</span><span>${params.get('time') || '—'}</span></div>
+    <div class="m-row" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(212,216,220,0.08);">
+      <span>Name</span><span>${params.get('name') || '—'}</span>
+    </div>
+    ${params.get('ig') ? `<div class="m-row"><span>Instagram</span><span>${params.get('ig')}</span></div>` : ''}
+    ${params.get('contact') ? `<div class="m-row"><span>Contact via</span><span>${params.get('contact')}</span></div>` : ''}
+  `;
+  const calUrl = params.get('cal');
+  if (calUrl) document.getElementById('btn-cal').href = calUrl;
+  document.getElementById('overlay').classList.add('show');
+})();
+
+function closeModal() { document.getElementById('overlay').classList.remove('show'); }
 
 function downloadConfirmation() {
   const btn = document.querySelector('.btn-dl');
