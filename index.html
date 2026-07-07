@@ -604,10 +604,16 @@ function blockSlot(date, startTime, durationMins) {
   };
 
   // Also block it locally right away so the calendar reflects it
-  // without waiting on the next sheet fetch.
-  const dk = date.toISOString().split('T')[0];
+  // without waiting on the next sheet fetch. Use local date parts
+  // (matching dateKey() elsewhere) rather than toISOString, which
+  // is UTC-based and can land on the wrong day in Bangkok's timezone.
+  const dk = dateKey(date.getFullYear(), date.getMonth(), date.getDate());
   if (!BLOCKED_SLOTS[dk]) BLOCKED_SLOTS[dk] = [];
   BLOCKED_SLOTS[dk].push([startMins, endMins]);
+
+  // Refresh the calendar/slot picker so the change is visible right away
+  buildCal();
+  if (S.date) buildSlots();
 
   // Apps Script web apps don't return CORS headers on POST responses,
   // so we fire-and-forget with no-cors — we can't read the response,
@@ -617,9 +623,7 @@ function blockSlot(date, startTime, durationMins) {
     mode: 'no-cors',
     headers: { 'Content-Type': 'text/plain' }, // avoids CORS preflight
     body: JSON.stringify(payload),
-  })
-    .then(() => alert('DEBUG: blockSlot request sent OK\n' + JSON.stringify(payload)))
-    .catch(err => alert('DEBUG: blockSlot request FAILED\n' + err.message));
+  }).catch(err => console.warn('Block-slot request failed:', err.message));
 }
 
 async function fetchBlockedDates() {
