@@ -947,19 +947,6 @@ function doBook() {
     </div>
     <div class="m-row"><span>Date</span><span>${ds}</span></div>
     <div class="m-row"><span>Time</span><span>${S.time}</span></div>
-    <div style="display:flex;gap:20px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(212,216,220,0.08);font-size:8px;">
-      <div style="flex:1.6;min-width:0;display:flex;flex-direction:column;gap:5px;padding-right:20px;border-right:1px solid rgba(212,216,220,0.08);">
-        <div class="m-row" style="font-size:8px;"><span>Name</span><span>${name}</span></div>
-        ${email     ? `<div class="m-row" style="font-size:8px;"><span>Email</span><span>${email}</span></div>` : ''}
-        ${phone    ? `<div class="m-row" style="font-size:8px;"><span>Phone</span><span>${phone}</span></div>` : ''}
-        ${igHandle ? `<div class="m-row" style="font-size:8px;"><span>Instagram</span><span>${igHandle}</span></div>` : ''}
-        ${contact  ? `<div class="m-row" style="font-size:8px;"><span>Contact via</span><span>${contact}</span></div>` : ''}
-      </div>
-      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;">
-        ${attachedFiles.length ? `<div class="m-row" style="font-size:8px;"><span>Inspo Pics</span><span>${attachedFiles.length} image${attachedFiles.length>1?'s':''} attached</span></div>` : ''}
-        ${notes    ? `<div style="display:flex;flex-direction:column;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:8px;"><span style="color:var(--muted);">Notes</span><span style="color:var(--steel-shine);">${notes}</span></div>` : ''}
-      </div>
-    </div>
   `;
 
   const now = new Date();
