@@ -592,6 +592,34 @@ function setSheetStatus(state) {
 // Google Apps Script Web App endpoint — appends a blocked row to the same sheet
 const BLOCK_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby31aLatZjwn_mQxkwWOD7UNBTB0U71jeFDt2at09SR7y8CimdlBqQaStONtsxz4y2LjQ/exec';
 
+// ─────────────────────────────────────────────────────────────
+// SERVER TIME SYNC — client clocks can be wrong or spoofed, so
+// today's slot availability is based on the Apps Script server
+// clock, not the device clock. We fetch the offset once (and
+// periodically refresh it) rather than re-fetching on every render.
+// ─────────────────────────────────────────────────────────────
+const BOOKING_BUFFER_MINS = 150; // 2.5 hour minimum lead time for same-day bookings
+let SERVER_TIME_OFFSET_MS = 0; // serverNow - Date.now()
+
+async function syncServerTime() {
+  try {
+    const res = await fetch(withCacheBust(BLOCK_SCRIPT_URL + '?action=time'));
+    if (!res.ok) throw new Error('Bad response: ' + res.status);
+    const data = await res.json();
+    const serverNow = new Date(data.serverTime);
+    SERVER_TIME_OFFSET_MS = serverNow.getTime() - Date.now();
+  } catch (e) {
+    console.warn('Server time sync failed, falling back to device clock:', e.message);
+    SERVER_TIME_OFFSET_MS = 0;
+  }
+  // Re-render today's slots in case the offset shifted the cutoff
+  if (S.date) buildSlots();
+}
+
+function getServerNow() {
+  return new Date(Date.now() + SERVER_TIME_OFFSET_MS);
+}
+
 // Format a Date object as DD-MM-YYYY to match the sheet's existing format
 function formatSheetDate(dt) {
   const d = String(dt.getDate()).padStart(2, '0');
@@ -702,12 +730,26 @@ function getAvailableSlots() {
   const dateStr = S.date ? dateKey(S.date.getFullYear(), S.date.getMonth(), S.date.getDate()) : null;
   const bookedWindows = (dateStr && BLOCKED_SLOTS[dateStr]) || [];
 
+  // If the selected date is today, hide any slot starting before
+  // (server now + buffer) — gives enough lead time to get to the
+  // studio, since the owner isn't always on-site.
+  const serverNow = getServerNow();
+  const isToday = S.date &&
+    S.date.getFullYear() === serverNow.getFullYear() &&
+    S.date.getMonth()    === serverNow.getMonth() &&
+    S.date.getDate()     === serverNow.getDate();
+  const cutoffMins = isToday
+    ? (serverNow.getHours() * 60 + serverNow.getMinutes() + BOOKING_BUFFER_MINS)
+    : -Infinity;
+
   return ALL_SLOTS.filter(slot => {
     const start = slotToMins(slot);
     const end   = start + total;
     if (end > CLOSE_MINS) return false;
     // No starts during lunch 12:00–12:59
     if (start >= 720 && start < 780) return false;
+    // Hide past/too-soon slots for today, per the booking buffer
+    if (start < cutoffMins) return false;
     // Hide slot if it overlaps any booked window on this date
     for (const [bStart, bEnd] of bookedWindows) {
       if (start < bEnd && end > bStart) return false;
@@ -1304,6 +1346,8 @@ document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 // ─────────────────────────────────────────────────────────────
 buildCal();
 fetchBlockedDates(); // fetch live blocked dates from Google Sheet
+syncServerTime(); // fetch server clock so today's slots respect the booking buffer
+setInterval(syncServerTime, 5 * 60 * 1000); // re-sync every 5 min to stay accurate
 </script>
 
 </body>
