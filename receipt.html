@@ -45,7 +45,7 @@
     margin-top:2px;
   }
   .receipt-box .label{
-    color:#5b6270;
+    color:#3f4550;
     font-size:6.5px;
     letter-spacing:0.08em;
     text-transform:uppercase;
@@ -83,7 +83,7 @@
     flex:1;
   }
   .items-header{
-    color:#5b6270;
+    color:#3f4550;
     font-size:6.5px;
     letter-spacing:0.08em;
     text-transform:uppercase;
@@ -99,6 +99,9 @@
     padding-right:10px;
   }
   .item-row .item-name{flex:1;}
+  .item-row .item-name::before{
+    content: "• ";
+  }
   .item-row .item-price{width:40px; text-align:right; flex-shrink:0;}
   #items{margin-top:3px; margin-bottom:2px;}
   .rule{
