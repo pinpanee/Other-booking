@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OTHER___0.01 Receipt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:40px 16px;
+    background:#0a0e14;
+    font-family:'IBM Plex Mono', monospace;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:20px;
+  }
+  #card{
+    width:360px;
+    aspect-ratio:952/1188;
+    position:relative;
+    overflow:hidden;
+    color:#c7ccd6;
+  }
+  #card img.bg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .receipt-box{
+    position:absolute;
+    top:5.5%; left:5%;
+    width:38%;
+    font-size:9px;
+    line-height:1.6;
+    letter-spacing:0.03em;
+    z-index:2;
+  }
+  .receipt-box .label{
+    color:#8b93a3;
+    font-size:7px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+  .receipt-box [contenteditable]{
+    outline:none;
+    border-bottom:1px dashed rgba(199,204,214,0.25);
+    min-height:1.4em;
+  }
+  .receipt-box [contenteditable]:focus{
+    border-bottom:1px solid #4a7fd6;
+  }
+  .title{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.15em;
+    margin-bottom:10px;
+    color:#fff;
+  }
+  .row{margin-bottom:6px;}
+  .item-row{
+    display:flex;
+    justify-content:space-between;
+    gap:6px;
+    margin-bottom:3px;
+  }
+  .item-row .item-name{flex:1;}
+  .item-row .item-price{width:44px; text-align:right; flex-shrink:0;}
+  #items{margin-top:8px; margin-bottom:6px;}
+  .rule{
+    border-top:1px solid rgba(199,204,214,0.3);
+    margin:6px 0;
+  }
+  .total-row{
+    display:flex;
+    justify-content:space-between;
+    font-weight:600;
+    color:#fff;
+  }
+  .discount-row{
+    display:flex;
+    justify-content:space-between;
+    color:#8b93a3;
+  }
+  .add-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:8px;
+    background:none;
+    border:1px dashed rgba(199,204,214,0.3);
+    color:#8b93a3;
+    padding:3px 6px;
+    cursor:pointer;
+  }
+
+  .controls{
+    width:360px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .controls button{
+    font-family:'IBM Plex Mono', monospace;
+    background:#4a7fd6;
+    color:#fff;
+    border:none;
+    padding:10px;
+    font-size:12px;
+    letter-spacing:0.05em;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  .controls button.secondary{
+    background:#2a2f3a;
+  }
+  .controls .hint{
+    color:#6b7280;
+    font-size:11px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<div id="card">
+  <img class="bg" src="https://i.ibb.co/Ps3fcMQh/OTHER-QR-2-1.png" crossorigin="anonymous">
+
+  <div class="receipt-box">
+    <div class="title">RECEIPT</div>
+    <div class="row"><span class="label">CLIENT</span><br><span contenteditable="true">Client Name</span></div>
+    <div class="row"><span class="label">DATE</span><br><span contenteditable="true">DD.MM.YYYY</span></div>
+
+    <div id="items">
+      <div class="item-row">
+        <span class="item-name" contenteditable="true">Service</span>
+        <span class="item-price" contenteditable="true">0</span>
+      </div>
+    </div>
+    <button class="add-btn" onclick="addItem()">+ add item</button>
+
+    <div class="rule"></div>
+    <div class="discount-row">
+      <span>DISCOUNT</span>
+      <span contenteditable="true">0</span>
+    </div>
+    <div class="rule"></div>
+    <div class="total-row">
+      <span>TOTAL</span>
+      <span id="total">฿0</span>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <button onclick="downloadPNG()">Download PNG</button>
+  <button class="secondary" onclick="addItem()">+ Add Item</button>
+  <div class="hint">Click any text on the card to edit it directly. Add items with the button, then hit Download PNG.</div>
+</div>
+
+<script>
+function addItem(){
+  const items = document.getElementById('items');
+  const row = document.createElement('div');
+  row.className = 'item-row';
+  row.innerHTML = `
+    <span class="item-name" contenteditable="true">Service</span>
+    <span class="item-price" contenteditable="true">0</span>
+  `;
+  items.appendChild(row);
+}
+
+function calcTotal(){
+  const prices = [...document.querySelectorAll('.item-price')]
+    .map(el => parseFloat(el.textContent.replace(/[^\d.-]/g,'')) || 0);
+  const subtotal = prices.reduce((a,b)=>a+b,0);
+  const discount = parseFloat(
+    document.querySelector('.discount-row span:last-child').textContent.replace(/[^\d.-]/g,'')
+  ) || 0;
+  const total = subtotal - discount;
+  document.getElementById('total').textContent = '฿' + total.toLocaleString();
+}
+
+document.addEventListener('input', (e)=>{
+  if(e.target.closest('.item-price') || e.target.closest('.discount-row')) calcTotal();
+});
+calcTotal();
+
+function downloadPNG(){
+  html2canvas(document.getElementById('card'), {scale:3, useCORS:true, allowTaint:false}).then(canvas=>{
+    const link = document.createElement('a');
+    link.download = 'receipt-' + Date.now() + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(()=>{
+    alert('Download failed — likely a CORS issue with the background image. Try re-uploading it to ImgBB, that host allows cross-origin canvas export.');
+  });
+}
+</script>
+
+</body>
+</html>
