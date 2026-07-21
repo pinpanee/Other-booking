@@ -58,6 +58,10 @@
   .receipt-box [contenteditable]:focus{
     border-bottom:1px solid #4a7fd6;
   }
+  [contenteditable][data-placeholder]:empty::before{
+    content: attr(data-placeholder);
+    color: rgba(199,204,214,0.35);
+  }
   .title{
     font-size:10px;
     font-weight:600;
@@ -114,6 +118,14 @@
     position:relative;
     padding-right:10px;
   }
+  .discount-value{
+    display:flex;
+    align-items:baseline;
+  }
+  .discount-value [contenteditable]{
+    min-width:12px;
+    text-align:right;
+  }
   .del-btn{
     position:absolute;
     right:-2px;
@@ -161,14 +173,14 @@
 
   <div class="receipt-box">
     <div class="title">INVOICE</div>
-    <div class="row"><span class="label">CLIENT</span><span contenteditable="true">Client Name</span></div>
-    <div class="row"><span class="label">DATE</span><span contenteditable="true">DD.MM.YYYY</span></div>
+    <div class="row"><span class="label">CLIENT</span><span contenteditable="true" data-placeholder="Client Name"></span></div>
+    <div class="row"><span class="label">DATE</span><span contenteditable="true" id="date-field" data-placeholder="DD.MM.YYYY"></span></div>
 
     <div class="items-header">ITEM(S)</div>
     <div id="items">
       <div class="item-row">
-        <span class="item-name" contenteditable="true">Service</span>
-        <span class="item-price" contenteditable="true">0</span>
+        <span class="item-name" contenteditable="true" data-placeholder="Service"></span>
+        <span class="item-price" contenteditable="true" data-placeholder="0"></span>
         <span class="del-btn" onclick="removeRow(this)">×</span>
       </div>
     </div>
@@ -176,7 +188,7 @@
     <div class="rule"></div>
     <div class="discount-row">
       <span class="label">DISCOUNT</span>
-      <span contenteditable="true">0%</span>
+      <span class="discount-value"><span contenteditable="true" data-placeholder="0"></span>%</span>
       <span class="del-btn" onclick="removeRow(this)">×</span>
     </div>
     <div class="rule"></div>
@@ -199,8 +211,8 @@ function addItem(){
   const row = document.createElement('div');
   row.className = 'item-row';
   row.innerHTML = `
-    <span class="item-name" contenteditable="true">Service</span>
-    <span class="item-price" contenteditable="true">0</span>
+    <span class="item-name" contenteditable="true" data-placeholder="Service"></span>
+    <span class="item-price" contenteditable="true" data-placeholder="0"></span>
     <span class="del-btn" onclick="removeRow(this)">×</span>
   `;
   items.appendChild(row);
@@ -219,9 +231,10 @@ function calcTotal(){
   const subtotal = prices.reduce((a,b)=>a+b,0);
 
   const discountRow = document.querySelector('.discount-row');
+  const discountInput = discountRow.querySelector('.discount-value [contenteditable]');
   const discountPct = discountRow.style.display === 'none'
     ? 0
-    : parseFloat(discountRow.querySelector('[contenteditable]').textContent.replace(/[^\d.-]/g,'')) || 0;
+    : parseFloat(discountInput.textContent.replace(/[^\d.-]/g,'')) || 0;
 
   const discountAmount = subtotal * (discountPct / 100);
   const total = subtotal - discountAmount;
@@ -231,6 +244,16 @@ function calcTotal(){
 document.addEventListener('input', (e)=>{
   if(e.target.closest('.item-price') || e.target.closest('.discount-row')) calcTotal();
 });
+
+window.addEventListener('DOMContentLoaded', () => {
+  const dateField = document.getElementById('date-field');
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2, '0');
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const yyyy = today.getFullYear();
+  dateField.textContent = `${dd}.${mm}.${yyyy}`;
+});
+
 calcTotal();
 
 function downloadPNG(){
