@@ -1079,7 +1079,8 @@ function doBook() {
     </div>
     <div class="m-row"><span>Date</span><span>${ds}</span></div>
     <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);"><span>Time</span><span>${S.time}</span></div>
-    <div class="m-row"><span>Confirmation to be sent via</span><span>${contact}</span></div>
+    <div class="m-row"><span>Confirmation via</span><span>${contact}</span></div>
+    ${contactValue ? `<div class="m-row"><span></span><span>${contactValue}</span></div>` : ''}
   `;
 
   const now = new Date();
@@ -1092,7 +1093,7 @@ function doBook() {
   const calUrl = buildCalendarUrl(ref);
   document.getElementById('btn-cal').href = calUrl;
   const servicesDisplay = groupServicesByCategory(S.svcs, true);
-  const shareUrl = buildConfirmShareUrl(ref, ds, S.time, servicesDisplay, name, igHandle, contact, calUrl);
+  const shareUrl = buildConfirmShareUrl(ref, ds, S.time, servicesDisplay, name, igHandle, contact, calUrl, contactValue);
   history.pushState(null, '', shareUrl);
   document.getElementById('overlay').classList.add('show');
 
@@ -1192,7 +1193,7 @@ function buildCalendarUrl(ref) {
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&details=${details}&location=${location}&ctz=Asia/Bangkok`;
 }
 
-function buildConfirmShareUrl(ref, dsPretty, timeStr, servicesHtml, name, igHandle, contactVia, calUrl) {
+function buildConfirmShareUrl(ref, dsPretty, timeStr, servicesHtml, name, igHandle, contactVia, calUrl, contactValue) {
   const params = new URLSearchParams();
   params.set('date', dsPretty);
   params.set('time', timeStr);
@@ -1200,6 +1201,7 @@ function buildConfirmShareUrl(ref, dsPretty, timeStr, servicesHtml, name, igHand
   params.set('name', name);
   if (igHandle)  params.set('ig', igHandle);
   if (contactVia) params.set('contact', contactVia);
+  if (contactValue) params.set('contactValue', contactValue);
   params.set('cal', calUrl);
   const cleanRef = ref.replace(/^#/, '');
   return `/confirm/${encodeURIComponent(cleanRef)}?${params.toString()}`;
@@ -1231,7 +1233,8 @@ function copyConfirmLink() {
     </div>
     <div class="m-row"><span>Date</span><span>${params.get('date') || '—'}</span></div>
     <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);"><span>Time</span><span>${params.get('time') || '—'}</span></div>
-    ${params.get('contact') ? `<div class="m-row"><span>Confirmation to be sent via</span><span>${params.get('contact')}</span></div>` : ''}
+    ${params.get('contact') ? `<div class="m-row"><span>Confirmation via</span><span>${params.get('contact')}</span></div>` : ''}
+    ${params.get('contactValue') ? `<div class="m-row"><span></span><span>${params.get('contactValue')}</span></div>` : ''}
     <div class="m-row" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(212,216,220,0.08);">
       <span>Name</span><span>${params.get('name') || '—'}</span>
     </div>
