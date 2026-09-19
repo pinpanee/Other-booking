@@ -1064,7 +1064,7 @@ function doBook() {
   if (phone && !isValidPhone(phone)) { alert('Please enter a valid phone number.'); return; }
   if (!contact) { alert('Please select a preferred contact method.'); return; }
 
-  const ds = S.date.toLocaleDateString('en-US', {weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  const ds = S.date.toLocaleDateString('en-GB', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const igHandle = ig ? (ig.startsWith('@') ? ig : '@'+ig) : null;
   const total    = getTotalDuration();
   const contactValue = getContactValue(contact, email, phone, igHandle);
@@ -1079,7 +1079,7 @@ function doBook() {
     </div>
     <div class="m-row"><span>Date</span><span>${ds}</span></div>
     <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);"><span>Time</span><span>${S.time}</span></div>
-    <div class="m-row"><span>Confirmation will be sent via</span><span>${contact}</span></div>
+    <div class="m-row"><span>Confirmation to be sent via</span><span>${contact}</span></div>
   `;
 
   const now = new Date();
@@ -1231,7 +1231,7 @@ function copyConfirmLink() {
     </div>
     <div class="m-row"><span>Date</span><span>${params.get('date') || '—'}</span></div>
     <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);"><span>Time</span><span>${params.get('time') || '—'}</span></div>
-    ${params.get('contact') ? `<div class="m-row"><span>Confirmation will be sent via</span><span>${params.get('contact')}</span></div>` : ''}
+    ${params.get('contact') ? `<div class="m-row"><span>Confirmation to be sent via</span><span>${params.get('contact')}</span></div>` : ''}
     <div class="m-row" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(212,216,220,0.08);">
       <span>Name</span><span>${params.get('name') || '—'}</span>
     </div>
