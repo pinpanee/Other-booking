@@ -74,9 +74,9 @@
 
   .cal-nav { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); position:relative; z-index:2; }
   .cal-title { display:flex; flex-direction:column; align-items:center; gap:2px; }
-  .cal-month-name { font-family:'DM Serif Display',serif; font-size:18px; color:var(--steel-shine); }
+  .cal-month-name { font-family:'DM Serif Display',serif; font-size:17px; color:var(--steel-shine); }
   .cal-year { font-family:'Syne Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.15em; }
-  .cal-arr { background:none; border:1px solid var(--border); color:var(--text); width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:crosshair; font-size:13px; transition:all 0.2s; font-family:monospace; }
+  .cal-arr { background:none; border:1px solid var(--border); color:var(--text); width:15px; height:30px; flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:crosshair; font-size:13px; transition:all 0.2s; font-family:monospace; }
   .cal-arr:hover { border-color:var(--electric); color:var(--electric); box-shadow:0 0 12px var(--electric-dim); }
 
   .cal-dnames { display:grid; grid-template-columns:repeat(7,1fr); border-bottom:1px solid var(--border); position:relative; z-index:2; }
@@ -84,13 +84,13 @@
 
   .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); position:relative; z-index:2; }
   .c-cell { aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:12px; font-family:'Syne Mono',monospace; cursor:crosshair; transition:all 0.15s; border:1px solid transparent; position:relative; color:var(--text); }
-  .c-cell.other { color:rgba(212,216,220,0.16); cursor:default; }
-  .c-cell.past  { color:rgba(212,216,220,0.18); cursor:default; }
-  .c-cell.blocked { color:rgba(212,216,220,0.22); cursor:not-allowed; }
+  .c-cell.other { color:rgba(212,216,220,0.08); cursor:default; }
+  .c-cell.past  { color:rgba(212,216,220,0.22); cursor:default; text-decoration:line-through; }
+  .c-cell.blocked { color:rgba(212,216,220,0.22); cursor:not-allowed; text-decoration:line-through; }
   .c-cell.today { color:var(--electric); }
   .c-cell.today::after { content:''; position:absolute; bottom:4px; left:50%; transform:translateX(-50%); width:3px; height:3px; background:var(--electric); border-radius:50%; box-shadow:0 0 6px var(--electric); }
   .c-cell.avail:hover { background:rgba(10,111,255,0.1); border-color:var(--electric-dim); color:var(--electric); }
-  .c-cell.picked { background:var(--electric); color:#fff; box-shadow:0 0 20px var(--electric-glow); font-weight:700; }
+  .c-cell.picked { background:rgba(10,111,255,0.8); color:#fff; box-shadow:0 0 20px var(--electric-glow); font-weight:700; }
 
   /* cal loading state */
   .cal-loading { display:flex; align-items:center; justify-content:center; gap:10px; padding:20px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.1em; border-top:1px solid var(--border); }
@@ -106,15 +106,16 @@
   .slots-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; }
   .slot { padding:9px 2px; text-align:center; font-family:'Syne Mono',monospace; font-size:11px; border:1px solid var(--border); background:none; color:var(--text); cursor:crosshair; transition:all 0.15s; }
   .slot:hover { border-color:var(--electric); color:var(--electric); box-shadow:0 0 10px var(--electric-dim); }
-  .slot.picked { background:var(--electric); color:#fff; border-color:var(--electric); box-shadow:0 0 16px var(--electric-glow); }
-  .slot.off { opacity:0.2; cursor:not-allowed; pointer-events:none; }
+  .slot.picked { background:rgba(10,111,255,0.8); color:#fff; border-color:var(--electric); box-shadow:0 0 16px var(--electric-glow); }
+  .slot.off { opacity:0.2; cursor:not-allowed; pointer-events:none; text-decoration:line-through; }
+  .slot.full { opacity:0.9; cursor:default; pointer-events:none; color:var(--electric); border-color:var(--electric-dim); background:rgba(10,111,255,0.22); letter-spacing:0.06em; font-weight:700; height:31px; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:7px; line-height:1.2; }
 
   /* ── MENU TABS ── */
   .menu-tabs { display:flex; gap:0; border:1px solid var(--border); margin-bottom:1px; }
   .menu-tab { flex:1; padding:9px 8px; background:none; border:none; border-right:1px solid var(--border); color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:12.5px; cursor:crosshair; transition:all 0.2s; }
   .menu-tab:last-child { border-right:none; }
   .menu-tab:hover { color:var(--steel-shine); background:rgba(255,255,255,0.03); }
-  .menu-tab.active { color:#fff; background:var(--electric); opacity:0.9; }
+  .menu-tab.active { color:#fff; background:rgba(10,111,255,0.8); }
   .menu-panel { display:none; border:1px solid var(--border); border-top:none; overflow:hidden; }
   .menu-panel.active { display:block; }
 
@@ -136,11 +137,11 @@
   .svc-desc { font-family:'IBM Plex Mono',monospace; font-size:8px; font-style:italic; color:var(--muted); line-height:1.3; }
 
   /* ── SELECTED PANEL ── */
-  .sel-svc { border:1px solid var(--border); border-left:2px solid var(--electric); padding:18px 22px; margin-bottom:24px; background:var(--electric-dim); min-height:72px; box-shadow:0 0 20px rgba(10,111,255,0.08); }
+  .sel-svc { border:1px solid var(--border); padding:18px 22px; margin-bottom:24px; background:var(--electric-dim); min-height:72px; box-shadow:0 0 20px rgba(10,111,255,0.08); }
   .sel-lbl { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; white-space:nowrap; opacity:0.8; }
   .sel-empty { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); line-height:1.6; }
   .sel-list { display:flex; flex-direction:column; gap:0; }
-  .sel-item { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid rgba(212,216,220,0.07); gap:8px; }
+  .sel-item { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid rgba(212,216,220,0.07); gap:8px; transform:scaleY(0.90); transform-origin:center; }
   .sel-item:last-child { border-bottom:none; }
   .sel-item-name { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--steel-shine); flex:1; }
   .sel-remove { background:none; border:none; color:var(--muted); font-size:14px; cursor:crosshair; padding:2px 4px; line-height:1; transition:color 0.15s; }
@@ -155,7 +156,7 @@
   .f-in,.f-ta { width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:13px; padding:12px 15px; outline:none; transition:border-color 0.2s,box-shadow 0.2s; cursor:crosshair; }
   .f-in::placeholder,.f-ta::placeholder { color:rgba(212,216,220,0.2); }
   .f-in:focus,.f-ta:focus { border-color:var(--electric); box-shadow:0 0 16px var(--electric-dim); }
-  .f-ta { resize:vertical; min-height:120px; }
+  .f-ta { resize:none; min-height:120px; }
   .f-select { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(212,216,220,0.4)'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; cursor:crosshair; }
   .f-select option { background:var(--surface); color:var(--text); }
 
@@ -279,8 +280,8 @@
 <body>
 
 <header>
-  <div class="logo" style="color:var(--electric); font-family:'Roboto Mono',monospace;"><span style="opacity:0.25; margin-right:5px;">★</span>OTHE<span style="margin-right:2px;">R</span><span style="display:inline-block; width:2.1ch; height:2px; background:var(--electric); vertical-align:-0.1em; margin:0 0;"></span>O.O1<span style="opacity:0.25; margin-left:2.5px;">★</span></div>
-  <div class="header-appt">BY APPOINTMENT ONLY</div>
+  <div class="logo" style="color:var(--electric); font-family:'Roboto Mono',monospace; display:inline-block; transform:scaleY(0.95); transform-origin:center;"><span style="opacity:0.25; margin-right:5px;">★</span>OTHE<span style="margin-right:2px;">R</span><span style="display:inline-block; width:2.1ch; height:2px; background:var(--electric); vertical-align:-0.1em; margin:0 0;"></span>O.O1<span style="opacity:0.25; margin-left:2.5px;">★</span></div>
+  <div class="header-appt" style="position:relative; top:1px;">BY APPOINTMENT ONLY</div>
   <nav></nav>
 </header>
 
@@ -300,7 +301,7 @@
         <div class="cal-nav">
           <button class="cal-arr" onclick="shiftMo(-1)">‹</button>
           <div class="cal-title">
-            <span class="cal-month-name" id="cal-label-month">—</span>
+            <span class="cal-month-name" id="cal-label-month" style="display:inline-block; transform:scaleY(0.90);">—</span>
             <span class="cal-year" id="cal-label-year">—</span>
           </div>
           <button class="cal-arr" onclick="shiftMo(1)">›</button>
@@ -332,28 +333,28 @@
     <div class="reveal" style="min-width:0;">
       <div class="sec-eyebrow">02 / Menu</div>
       <div class="menu-tabs">
-        <button class="menu-tab active" onclick="switchTab('hair',this)">HAIR</button>
-        <button class="menu-tab" onclick="switchTab('nails',this)">NAILS</button>
-        <button class="menu-tab" onclick="switchTab('beards',this)">BEARD</button>
+        <button class="menu-tab active" onclick="switchTab('hair',this)"><span style="display:inline-block; transform:scaleY(0.92);">HAIR</span></button>
+        <button class="menu-tab" onclick="switchTab('nails',this)"><span style="display:inline-block; transform:scaleY(0.92);">NAILS</span></button>
+        <button class="menu-tab" onclick="switchTab('beards',this)"><span style="display:inline-block; transform:scaleY(0.92);">BEARD</span></button>
       </div>
 
       <!-- HAIR -->
       <div class="menu-panel active" id="panel-hair">
         <div class="svc-row" onclick="pickSvc(this,'Cut','Hair',120)">
           <div class="svc-check"></div>
-          <div class="svc-body"><div class="svc-name">Cut ✃</div><div class="svc-desc" style="white-space:nowrap;">tailored precision cuts</div></div>
+          <div class="svc-body"><div class="svc-name" style="transform:scaleY(0.95); transform-origin:left;">Cut ✃</div><div class="svc-desc" style="white-space:nowrap;">tailored precision cuts</div></div>
         </div>
         <div class="svc-row" onclick="pickSvc(this,'Colour','Hair',240)">
           <div class="svc-check"></div>
-          <div class="svc-body"><div class="svc-name">Colour</div><div class="svc-desc">full colour, highlights or creative work — let's discuss!</div></div>
+          <div class="svc-body"><div class="svc-name" style="transform:scaleY(0.95); transform-origin:left;">Colour</div><div class="svc-desc">full colour, highlights or creative work — let's discuss!</div></div>
         </div>
         <div class="svc-row" onclick="pickSvc(this,'Hair / Scalp Treatment','Hair',120)">
           <div class="svc-check"></div>
-          <div class="svc-body"><div class="svc-name">Hair / Scalp Treatment</div><div class="svc-desc">targeted care for hair and scalp health</div></div>
+          <div class="svc-body"><div class="svc-name" style="transform:scaleY(0.95); transform-origin:left;">Hair<span style="margin:0 6px;">/</span>Scalp Treatment</div><div class="svc-desc">targeted care for hair and scalp health</div></div>
         </div>
         <div class="svc-row" onclick="pickSvc(this,'Cold Perm','Hair',180)">
           <div class="svc-check"></div>
-          <div class="svc-body"><div class="svc-name">Cold Perm</div><div class="svc-desc">add waves, texture &amp; volume</div></div>
+          <div class="svc-body"><div class="svc-name" style="transform:scaleY(0.95); transform-origin:left;">Cold Perm</div><div class="svc-desc">add waves, texture &amp; volume</div></div>
         </div>
       </div>
 
@@ -361,11 +362,11 @@
       <div class="menu-panel" id="panel-nails">
         <div class="svc-row" onclick="pickSvc(this,'Gel Overlay + Nail Art','Nails',180)">
           <div class="svc-check"></div>
-          <div class="svc-body"><div class="svc-name">Gel Overlay + Nail Art</div><div class="svc-tag">Natural Nail</div><div class="svc-desc">strengthen your natural nails with builder gel</div></div>
+          <div class="svc-body"><div class="svc-name" style="transform:scaleY(0.95); transform-origin:left;">Gel Overlay + Nail Art</div><div class="svc-tag">Natural Nail</div><div class="svc-desc">strengthen your natural nails with builder gel</div></div>
         </div>
         <div class="svc-row" onclick="pickSvc(this,'Gel Extensions + Nail Art','Nails',240)">
           <div class="svc-check"></div>
-          <div class="svc-body"><div class="svc-name">Gel Extensions + Nail Art</div><div class="svc-tag">Extensions</div><div class="svc-desc">show me your nail inspo!</div></div>
+          <div class="svc-body"><div class="svc-name" style="transform:scaleY(0.95); transform-origin:left;">Gel Extensions + Nail Art</div><div class="svc-tag">Extensions</div><div class="svc-desc">show me your nail inspo!</div></div>
         </div>
       </div>
 
@@ -373,15 +374,15 @@
       <div class="menu-panel" id="panel-beards">
         <div class="svc-row" onclick="pickSvc(this,'Hot Towel Shave','Beard',120)">
           <div class="svc-check"></div>
-          <div class="svc-body"><div class="svc-name">Hot Towel Shave</div><div class="svc-desc">traditional straight razor shave</div></div>
+          <div class="svc-body"><div class="svc-name" style="transform:scaleY(0.95); transform-origin:left;">Hot Towel Shave</div><div class="svc-desc">traditional straight razor shave</div></div>
         </div>
         <div class="svc-row" onclick="pickSvc(this,'Shape + Trim','Beard',120)">
           <div class="svc-check"></div>
-          <div class="svc-body"><div class="svc-name">Shape + Trim</div><div class="svc-desc">defined lines &amp; balanced shape</div></div>
+          <div class="svc-body"><div class="svc-name" style="transform:scaleY(0.95); transform-origin:left;">Shape + Trim</div><div class="svc-desc">defined lines &amp; balanced shape</div></div>
         </div>
         <div class="svc-row" onclick="pickSvc(this,'Tint / Colour','Beard',120)">
           <div class="svc-check"></div>
-          <div class="svc-body"><div class="svc-name">Tint / Colour</div><div class="svc-desc">subtle to full coverage</div></div>
+          <div class="svc-body"><div class="svc-name" style="transform:scaleY(0.95); transform-origin:left;">Tint<span style="margin:0 6px;">/</span>Colour</div><div class="svc-desc">subtle to full coverage</div></div>
         </div>
       </div>
 
@@ -403,20 +404,19 @@
     <div class="details-grid">
       <div>
         <div class="f-field"><label class="f-lbl">Name <span style="color:var(--electric);">*</span></label><input class="f-in" type="text" placeholder="Your name" id="f-name"></div>
-        <div class="f-field"><label class="f-lbl">Email</label><input class="f-in" type="email" placeholder="you@example.com" id="f-email"></div>
-        <div class="f-field"><label class="f-lbl">Phone</label><input class="f-in" type="tel" placeholder="+66 000 000 0000" id="f-phone"></div>
-        <div class="f-field"><label class="f-lbl">Instagram</label><input class="f-in" type="text" placeholder="@handle" id="f-instagram" style="text-transform:lowercase;" oninput="this.value=this.value.toLowerCase()"></div>
         <div class="f-field">
           <label class="f-lbl">Preferred Contact <span style="color:var(--electric);">*</span></label>
           <select class="f-in f-select" id="f-contact" onchange="validate(); highlightContactField(this.value);">
             <option value="" disabled selected>Choose one</option>
             <option value="Email">Email</option>
-            <option value="SMS">SMS</option>
-            <option value="Line">Line</option>
-            <option value="Instagram DM">Instagram DM</option>
             <option value="WhatsApp">WhatsApp</option>
+            <option value="SMS">SMS</option>
+            <option value="Instagram DM">Instagram DM</option>
           </select>
         </div>
+        <div class="f-field"><label class="f-lbl">Email</label><input class="f-in" type="email" placeholder="you@example.com" id="f-email"></div>
+        <div class="f-field"><label class="f-lbl">Phone</label><input class="f-in" type="tel" placeholder="+66 000 000 0000" id="f-phone"></div>
+        <div class="f-field"><label class="f-lbl">Instagram</label><input class="f-in" type="text" placeholder="@handle" id="f-instagram" style="text-transform:lowercase;" oninput="this.value=this.value.toLowerCase()"></div>
       </div>
       <div style="position:relative; padding-bottom:60px;">
         <div class="f-field" style="margin-top:0;">
@@ -426,12 +426,12 @@
           </div>
           <div class="upload-zone" id="upload-zone" onclick="document.getElementById('f-images').click()" style="height:30px; min-height:30px; max-height:30px; padding:0; justify-content:center; align-items:center; overflow:hidden; background:var(--electric-dim); border-color:rgba(10,111,255,0.4);">
             <input type="file" id="f-images" accept="image/jpeg,image/png,image/webp" multiple style="display:none" onchange="handleFiles(this.files)">
-            <div class="upload-icon" id="upload-icon-label" style="width:100%; text-align:center; margin-top:7px;">+ ADD IMAGES</div>
+            <div class="upload-icon" id="upload-icon-label" style="width:100%; text-align:center; margin-top:7px;">+ <span style="display:inline-block; transform:scaleY(0.90);">ADD IMAGES</span></div>
           </div>
         </div>
-        <div class="f-field"><label class="f-lbl">Notes / References</label><textarea class="f-ta" placeholder="Vision, references, hair history, or anything useful..." id="f-notes"></textarea></div>
+        <div class="f-field"><label class="f-lbl">Notes / References</label><textarea class="f-ta" placeholder="Vision, references, hair history, or anything useful..." id="f-notes" style="height:112px; min-height:112px;"></textarea></div>
 
-        <button class="btn-book" id="book-btn" disabled onclick="doBook()" style="position:absolute; bottom:16px; left:0; right:0; margin:0; display:flex; flex-direction:row; align-items:center; justify-content:center; gap:6px;"><span style="display:flex; flex-direction:column; align-items:flex-start; line-height:1.3; transform:translateX(6px);"><span>Request</span><span>Booking</span></span><span style="font-size:16px; line-height:1; position:relative; top:-1px; transform:translateX(6px);">→</span></button>
+        <button class="btn-book" id="book-btn" disabled onclick="doBook()" style="position:absolute; bottom:17px; left:0; right:0; margin:0; display:flex; flex-direction:row; align-items:center; justify-content:center; gap:6px;"><span style="display:flex; flex-direction:column; align-items:flex-start; line-height:1.3; transform:translateX(6px);"><span>Request</span><span>Booking</span></span><span style="font-size:16px; line-height:1; position:relative; top:-1px; transform:translateX(6px);">→</span></button>
       </div>
     </div>
   </div>
@@ -444,14 +444,15 @@
   <div class="confirm-page" style="position:relative;">
     <div style="position:absolute;inset:0;pointer-events:none;z-index:9997;background-image:url('data:image/svg+xml,%3Csvg viewBox=%220 0 512 512%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.75%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22 opacity=%220.05%22/%3E%3C/svg%3E');opacity:0.85;"></div>
     <div class="confirm-header">
-      <div class="logo" style="color:var(--electric); font-family:'Roboto Mono',monospace;"><span style="opacity:0.25; margin-right:5px;">★</span>OTHE<span style="margin-right:2px;">R</span><span style="display:inline-block; width:2.1ch; height:2px; background:var(--electric); vertical-align:-0.1em; margin:0 0;"></span>O.O1<span style="opacity:0.25; margin-left:2.5px;">★</span></div>
+      <div class="logo" style="color:var(--electric); font-family:'Roboto Mono',monospace; display:inline-block; transform:scaleY(0.95); transform-origin:center;"><span style="opacity:0.25; margin-right:5px;">★</span>OTHE<span style="margin-right:2px;">R</span><span style="display:inline-block; width:2.1ch; height:2px; background:var(--electric); vertical-align:-0.1em; margin:0 0;"></span>O.O1<span style="opacity:0.25; margin-left:2.5px;">★</span></div>
       <span class="confirm-ref" id="confirm-ref">#OTH-1500-200606</span>
     </div>
-    <div class="confirm-banner" style="margin-top:9px; margin-bottom:0;">
+    <div class="confirm-banner" style="margin-top:9px; margin-bottom:0; padding-top:15px;">
       <div class="confirm-banner-icon">✓</div>
       <div>
-        <div class="confirm-banner-title">Booking Request Sent.</div>
-        <div class="confirm-banner-sub" style="line-height:1.6;"><span style="color:var(--steel-shine); opacity:0.65;">Location & Booking Confirmation</span><br><span style="color:var(--steel-shine); opacity:0.65;">will be sent to you shortly! ⊹܀˙</span></div>
+        <div class="confirm-banner-title" style="margin-bottom:8px;">Booking Request Sent.</div>
+        <div class="confirm-banner-sub" style="line-height:1.5; padding-bottom:8px;"><span style="color:var(--steel-shine); opacity:0.65;">Location & Booking Confirmation</span><br><span style="color:var(--steel-shine); opacity:0.65;">will be sent to you shortly<span style="display:inline-block; width:2.5px;"></span>–<span style="display:inline-block; width:2.5px;"></span>⊹܀˙</span></div>
+        <div style="margin-top:1px; margin-bottom:2px; font-size:8.1px; color:var(--electric); opacity:0.9; font-family:'IBM Plex Mono',monospace; font-style:italic; line-height:1.15; white-space:nowrap; word-spacing:-3px;">&lt;<span style="display:inline-block; width:2px;"></span><span style="display:inline-block; width:1px;"></span>make<span style="display:inline-block; width:1px;"></span> sure<span style="display:inline-block; width:1px;"></span> to<span style="display:inline-block; width:1px;"></span> check<span style="display:inline-block; width:1px;"></span> your '<span>spam</span>' folder<span style="font-size:0.6em; vertical-align:baseline;">!</span> &gt;</div>
       </div>
     </div>
     <!-- Banner image — full original height -->
@@ -461,13 +462,13 @@
 
 
     <div class="confirm-summary" id="modal-rows"></div>
-    <div class="confirm-notice-line" style="margin:-10px 0 -1px; padding:0 28px 14px; border-bottom:1px solid var(--border); text-align:right; font-size:8.6px; color:#fff; font-family:'IBM Plex Mono',monospace; font-style:italic; line-height:1.15; white-space:nowrap; word-spacing:-3px;">( * make sure to check your '<span style="font-size:9.1px; font-weight:700;">spam</span>' folder! )</div>
+    <div style="margin-top:-10px; padding:0 28px 14px; border-bottom:1px solid var(--border);"></div>
   <div style="padding:14px 28px; border-bottom:1px solid var(--border);">
     <p style="font-family:'IBM Plex Mono',monospace; font-size:10px; line-height:1.8;"><span style="color:var(--steel-shine); opacity:0.65;">Any inquiries? DM via Instagram:</span> <a href="https://instagram.com/other___0.01" target="_blank" style="color:var(--electric); text-decoration:none; letter-spacing:0.05em;">other___0.01</a></p>
   </div>
     <div class="btn-dl-row" style="display:flex; gap:0; border-top:1px solid var(--border);">
-      <button class="btn-cls btn-dl" onclick="downloadConfirmation()" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center; flex:0.7 1 0; width:auto; white-space:nowrap;">↓ SAVE</button>
-      <a id="btn-cal" href="#" target="_blank" class="btn-cls" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:1.6; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center; text-decoration:none; flex:1.3 1 0; width:auto; white-space:nowrap; font-size:11px;">📅 ADD TO CALENDAR</a>
+      <button class="btn-cls btn-dl" onclick="downloadConfirmation()" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:16.6px; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center; flex:0.7 1 0; width:auto; white-space:nowrap; font-size:11px;">↓ SAVE</button>
+      <a id="btn-cal" href="#" target="_blank" class="btn-cls" style="border-top:none; border-right:1px solid var(--border); color:var(--steel-mid); text-align:center; line-height:16.6px; padding-top:8px; padding-bottom:8px; background:rgba(10,111,255,0.05); font-weight:700; display:flex; align-items:center; justify-content:center; text-decoration:none; flex:1.3 1 0; width:auto; white-space:nowrap; font-size:11px;">📅 ADD TO CALENDAR</a>
       <button class="btn-cls" onclick="closeModal()" style="border-top:none; flex:0 0 80px; padding-top:17.5px; padding-bottom:17.5px; font-size:17px; position:relative; top:-2px;">×</button>
     </div>
   </div>
@@ -771,7 +772,26 @@ function switchTab(cat, btn) {
   document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('panel-' + cat).classList.add('active');
+  alignSelBox();
 }
+
+// ─────────────────────────────────────────────────────────────
+// Align top border of Selected Services box with top border of
+// the first time-slot box (only nudges via margin-top — doesn't
+// move or resize anything else)
+// ─────────────────────────────────────────────────────────────
+const __selBoxBaseMargin = 8; // matches the sel-svc's original margin-top:8px
+function alignSelBox() {
+  const svc  = document.querySelector('.sel-svc');
+  const slot = document.querySelector('#slots-grid .slot');
+  if (!svc || !slot) return;
+  svc.style.marginTop = __selBoxBaseMargin + 'px';
+  const svcRect  = svc.getBoundingClientRect();
+  const slotRect = slot.getBoundingClientRect();
+  const diff = slotRect.top - svcRect.top;
+  svc.style.marginTop = (diff > 0 ? __selBoxBaseMargin + diff : __selBoxBaseMargin) + 'px';
+}
+window.addEventListener('resize', alignSelBox);
 
 // ─────────────────────────────────────────────────────────────
 // SERVICE TOGGLE
@@ -785,9 +805,10 @@ function pickSvc(rowEl, name, cat, dur) {
 
 function removeSvc(name) {
   S.svcs = S.svcs.filter(s => s.name !== name);
+  const norm = s => s.replace(/\s+/g, '').toLowerCase();
   document.querySelectorAll('.svc-row').forEach(r => {
     const n = r.querySelector('.svc-name');
-    if (n && n.textContent.replace('✃','').trim() === name) r.classList.remove('sel');
+    if (n && norm(n.textContent.replace('✃','')) === norm(name)) r.classList.remove('sel');
   });
   renderSelPanel(); if (S.date) buildSlots(); validate();
 }
@@ -808,16 +829,16 @@ function renderSelPanel() {
   const ds = S.date ? S.date.toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'}) : null;
   let dateTime = '';
   if (ds && S.time) {
-    dateTime = `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(212,216,220,0.07);display:flex;flex-direction:row;align-items:center;justify-content:space-between;"><span style="color:var(--electric);">${ds}</span><svg width="3" height="3" viewBox="0 0 3 3" style="display:block;flex-shrink:0;opacity:0.8;"><circle cx="1.5" cy="1.5" r="1.5" fill="#8a9199"/></svg><span style="color:var(--electric);">${S.time}</span></div>`;
+    dateTime = `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;margin-top:8px;padding-top:8px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;"><span style="color:var(--muted);opacity:0.8;">${ds}</span><svg width="3" height="3" viewBox="0 0 3 3" style="display:block;flex-shrink:0;opacity:0.8;"><circle cx="1.5" cy="1.5" r="1.5" fill="#8a9199"/></svg><span style="color:var(--muted);opacity:0.8;">${S.time}</span></div>`;
   } else if (ds) {
-    dateTime = `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(212,216,220,0.07);display:flex;justify-content:space-between;align-items:center;"><span style="color:var(--electric);">${ds}</span><span style="color:var(--steel-shine);opacity:0.7;font-style:italic;font-size:9px;">pick time</span></div>`;
+    dateTime = `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;align-items:center;"><span style="color:rgba(255,255,255,0.8);">${ds}</span><span style="color:var(--electric);opacity:0.7;font-style:italic;font-size:9px;">pick time</span></div>`;
   } else if (S.svcs.length > 0) {
-    dateTime = `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid rgba(212,216,220,0.07);">pick a date & time</div>`;
+    dateTime = `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);font-style:italic;margin-top:8px;padding-top:8px;">pick a date & time</div>`;
   }
-  body.innerHTML = `<div class="sel-list">${S.svcs.map(s => `
+  body.innerHTML = `<div class="sel-list">${S.svcs.map((s,i) => `
     <div class="sel-item">
-      <div class="sel-item-name">${s.name} <span style="color:var(--electric); font-size:10px;">${s.name === 'Hair / Scalp Treatment' ? 'TREATMENT' : s.cat.toUpperCase()}</span></div>
-      <button class="sel-remove" data-svc="${s.name.replace(/"/g,'&quot;')}" onclick="removeSvc(this.dataset.svc)">×</button>
+      <div class="sel-item-name" style="position:relative; transform:translateX(4px);"><span style="position:absolute; left:-14px; color:var(--muted);">${i+1}.</span><span style="display:inline-block; transform:translateX(6px);">${s.name} <span style="color:var(--electric); font-size:10px;">${s.name === 'Hair / Scalp Treatment' ? 'TREATMENT' : s.cat.toUpperCase()}</span></span></div>
+      <button class="sel-remove" style="transform:translateX(10px);" data-svc="${s.name.replace(/"/g,'&quot;')}" onclick="removeSvc(this.dataset.svc)">×</button>
     </div>`).join('')}${dateTime}</div>`;
 }
 
@@ -901,6 +922,13 @@ function buildSlots() {
     if (S.time === t) btn.classList.add('picked');
     grid.appendChild(btn);
   });
+  if (avail.length === 0) {
+    const full = document.createElement('div');
+    full.className = 'slot full';
+    full.innerHTML = 'FULLY<br>BOOKED';
+    grid.appendChild(full);
+  }
+  alignSelBox();
 }
 
 function pickTime(t, el) {
@@ -930,7 +958,7 @@ function highlightContactField(type) {
   const bc = 'var(--electric)';
   if (type === 'Email') {
     document.getElementById('f-email').style.borderColor = bc;
-  } else if (['SMS','Line','WhatsApp'].includes(type)) {
+  } else if (['SMS','WhatsApp'].includes(type)) {
     document.getElementById('f-phone').style.borderColor = bc;
   } else if (type === 'Instagram DM') {
     document.getElementById('f-instagram').style.borderColor = bc;
@@ -958,17 +986,17 @@ function updateContactOptions() {
   }
 
   if (count === 0) {
-    setContactOptions(['Email','SMS','Line','WhatsApp','Instagram DM'], null);
+    setContactOptions(['Email','WhatsApp','SMS','Instagram DM'], null);
   } else if (count === 1 && hasEmail) {
     setContactOptions(['Email'], 'Email');
   } else if (count === 1 && hasPhone) {
-    setContactOptions(['SMS','Line','WhatsApp'], null);
+    setContactOptions(['SMS','WhatsApp'], null);
   } else if (count === 1 && hasIG) {
     setContactOptions(['Instagram DM'], 'Instagram DM');
   } else {
     const opts = [];
     if (hasEmail) opts.push('Email');
-    if (hasPhone) opts.push('SMS','Line','WhatsApp');
+    if (hasPhone) opts.push('WhatsApp','SMS');
     if (hasIG)    opts.push('Instagram DM');
     setContactOptions([...new Set(opts)], sel.value || null);
   }
@@ -1043,7 +1071,7 @@ document.getElementById('f-instagram').addEventListener('input', validate);
 // ─────────────────────────────────────────────────────────────
 function getContactValue(method, email, phone, igHandle) {
   if (method === 'Email') return email || '';
-  if (['SMS','Line','WhatsApp'].includes(method)) return phone || '';
+  if (['SMS','WhatsApp'].includes(method)) return phone || '';
   if (method === 'Instagram DM') return igHandle || '';
   return '';
 }
@@ -1081,7 +1109,7 @@ function doBook() {
     <div class="m-row"><span>Date</span><span>${ds}</span></div>
     <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);"><span>Time</span><span>${S.time}</span></div>
     <div class="m-row"><span>Confirmation via</span><span>${contact}</span></div>
-    ${contactValue ? `<div class="m-row" style="margin-top:-6px;"><span></span><span style="font-size:11px; opacity:0.5;">${contactValue}</span></div>` : ''}
+    ${contactValue ? `<div class="m-row" style="margin-top:-6px;margin-bottom:-9px;"><span></span><span style="font-size:11px; opacity:0.5;">${contactValue}</span></div>` : ''}
   `;
 
   const now = new Date();
@@ -1176,7 +1204,10 @@ function groupServicesByCategory(svcs, asHtml = false) {
     const label = asHtml
       ? `<span style="color:var(--electric);">${cat}</span>`
       : cat;
-    return `${label} ${groups[cat].join(', ')}`;
+    const names = asHtml
+      ? `<span style="opacity:0.8;">${groups[cat].join(', ')}</span>`
+      : groups[cat].join(', ');
+    return `${label} ${names}`;
   }).join(' · ');
 }
 
@@ -1230,16 +1261,16 @@ function copyConfirmLink() {
   document.getElementById('confirm-ref').textContent = ref;
   document.getElementById('modal-rows').innerHTML = `
     <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);">
+      <span>Name</span><span>${params.get('name') || '—'}</span>
+    </div>
+    ${params.get('ig') ? `<div class="m-row"><span>Instagram</span><span>${params.get('ig')}</span></div>` : ''}
+    <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);">
       <span>Service(s)</span><span>${params.get('services') || '—'}</span>
     </div>
     <div class="m-row"><span>Date</span><span>${params.get('date') || '—'}</span></div>
     <div class="m-row" style="padding-bottom:10px;border-bottom:1px solid rgba(212,216,220,0.08);"><span>Time</span><span>${params.get('time') || '—'}</span></div>
     ${params.get('contact') ? `<div class="m-row"><span>Confirmation via</span><span>${params.get('contact')}</span></div>` : ''}
-    ${params.get('contactValue') ? `<div class="m-row" style="margin-top:-6px;"><span></span><span style="font-size:11px; opacity:0.5;">${params.get('contactValue')}</span></div>` : ''}
-    <div class="m-row" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(212,216,220,0.08);">
-      <span>Name</span><span>${params.get('name') || '—'}</span>
-    </div>
-    ${params.get('ig') ? `<div class="m-row"><span>Instagram</span><span>${params.get('ig')}</span></div>` : ''}
+    ${params.get('contactValue') ? `<div class="m-row" style="margin-top:-6px;margin-bottom:-9px;"><span></span><span style="font-size:11px; opacity:0.5;">${params.get('contactValue')}</span></div>` : ''}
   `;
   const calUrl = params.get('cal');
   if (calUrl) document.getElementById('btn-cal').href = calUrl;
@@ -1367,6 +1398,7 @@ buildCal();
 fetchBlockedDates(); // fetch live blocked dates from Google Sheet
 syncServerTime(); // fetch server clock so today's slots respect the booking buffer
 setInterval(syncServerTime, 5 * 60 * 1000); // re-sync every 5 min to stay accurate
+alignSelBox();
 </script>
 
 </body>
