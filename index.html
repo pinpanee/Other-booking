@@ -88,7 +88,7 @@
   .c-cell.past  { color:rgba(212,216,220,0.22); cursor:default; text-decoration:line-through; }
   .c-cell.blocked { color:rgba(212,216,220,0.22); cursor:not-allowed; text-decoration:line-through; }
   .c-cell.today { color:var(--electric); }
-  .c-cell.today::after { content:''; position:absolute; bottom:4px; left:50%; transform:translateX(-50%); width:3px; height:3px; background:var(--electric); border-radius:50%; box-shadow:0 0 6px var(--electric); }
+  .c-cell.today::after { content:''; position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:4px; height:4px; background:var(--electric); border-radius:50%; box-shadow:0 0 6px var(--electric); }
   .c-cell.booked { color:rgba(212,216,220,0.22); }
   .c-cell.avail:hover { background:rgba(10,111,255,0.1); border-color:var(--electric-dim); color:var(--electric); }
   .c-cell.picked { background:rgba(10,111,255,0.8); color:#fff; box-shadow:0 0 20px var(--electric-glow); font-weight:700; }
@@ -116,7 +116,7 @@
   .slot:hover { border-color:var(--electric); color:var(--electric); box-shadow:0 0 10px var(--electric-dim); }
   .slot.picked { background:rgba(10,111,255,0.8); color:#fff; border-color:var(--electric); box-shadow:0 0 16px var(--electric-glow); }
   .slot.off { opacity:0.2; cursor:not-allowed; pointer-events:none; text-decoration:line-through; }
-  .slot.full { opacity:1; cursor:default; pointer-events:none; color:rgba(212,216,220,0.36); border-color:var(--electric-dim); background:rgba(10,111,255,0.32); letter-spacing:0.06em; font-weight:700; height:31px; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:7px; line-height:1.2; }
+  .slot.full { opacity:1; cursor:default; pointer-events:none; color:rgba(212,216,220,0.5); border-color:var(--electric-dim); background:rgba(10,111,255,0.32); letter-spacing:0.06em; font-weight:700; height:31px; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:7px; line-height:1.2; }
 
   /* ── MENU TABS ── */
   .menu-tabs { display:flex; gap:0; border:1px solid var(--border); margin-bottom:1px; }
