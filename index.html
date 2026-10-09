@@ -97,6 +97,13 @@
   .cal-dot { width:5px; height:5px; background:var(--electric); border-radius:50%; animation:caldot 1.2s ease-in-out infinite; }
   .cal-dot:nth-child(2) { animation-delay:0.2s; }
   .cal-dot:nth-child(3) { animation-delay:0.4s; }
+  @keyframes uplArrow { 0%{transform:translateY(11px);opacity:0} 30%{opacity:1} 70%{opacity:1} 100%{transform:translateY(-11px);opacity:0} }
+  @keyframes uplDot { 0%,80%,100%{opacity:0.15} 40%{opacity:1} }
+  .upl-arrow { display:inline-block; font-size:17px; font-weight:700; animation:uplArrow 1s ease-in-out infinite; }
+  .confirm-banner-icon.uploading { overflow:hidden; }
+  .upl-dots span { animation:uplDot 1.2s ease-in-out infinite; }
+  .upl-dots span:nth-child(2) { animation-delay:0.2s; }
+  .upl-dots span:nth-child(3) { animation-delay:0.4s; }
   @keyframes caldot { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
 
   /* ── SLOTS — inside cal-wrap, inherits its width ── */
@@ -448,7 +455,7 @@
       <span class="confirm-ref" id="confirm-ref">#OTH-1500-200606</span>
     </div>
     <div class="confirm-banner" style="margin-top:9px; margin-bottom:0; padding-top:15px;">
-      <div class="confirm-banner-icon">✓</div>
+      <div class="confirm-banner-icon" id="banner-icon">✓</div>
       <div>
         <div class="confirm-banner-title" id="banner-title" style="margin-bottom:8px;">Booking Request Sent.</div>
         <div class="confirm-banner-sub" id="banner-sub" style="line-height:1.5; padding-bottom:8px;"><span style="color:var(--steel-shine); opacity:0.65;">Location & Booking Confirmation</span><br><span style="color:var(--steel-shine); opacity:0.65;">will be sent to you shortly<span style="display:inline-block; width:2.5px;"></span>–<span style="display:inline-block; width:2.5px;"></span>⊹܀˙</span></div>
@@ -1242,12 +1249,19 @@ function doBook() {
     const bTitle = document.getElementById('banner-title');
     const bSub   = document.getElementById('banner-sub');
     const bNote  = document.getElementById('banner-note');
-    const orig   = { t: bTitle ? bTitle.innerHTML : '', s: bSub ? bSub.innerHTML : '' };
-    if (bTitle) bTitle.textContent = 'Uploading your photos…';
+    const bIcon  = document.getElementById('banner-icon');
+    const orig   = { t: bTitle ? bTitle.innerHTML : '', s: bSub ? bSub.innerHTML : '', i: bIcon ? bIcon.innerHTML : '' };
+    if (bIcon) { bIcon.classList.add('uploading'); bIcon.innerHTML = '<span class="upl-arrow">↑</span>'; }
+    if (bTitle) {
+      bTitle.style.fontSize = '13px';
+      bTitle.style.whiteSpace = 'nowrap';
+      bTitle.innerHTML = 'Uploading your photos<span class="upl-dots"><span>.</span><span>.</span><span>.</span></span>';
+    }
     if (bSub) bSub.innerHTML = '<span style="color:var(--steel-shine); opacity:0.65;">Please keep this page open<br>until your photos are sent</span>';
     if (bNote) bNote.style.display = 'none';
     const restoreBanner = () => {
-      if (bTitle) bTitle.innerHTML = orig.t;
+      if (bTitle) { bTitle.innerHTML = orig.t; bTitle.style.fontSize = ''; bTitle.style.whiteSpace = ''; }
+      if (bIcon) { bIcon.innerHTML = orig.i; bIcon.classList.remove('uploading'); }
       if (bSub) bSub.innerHTML = orig.s;
       if (bNote) bNote.style.display = '';
     };
@@ -1255,7 +1269,7 @@ function doBook() {
     const setStatus = t => {
       const rows = document.getElementById('modal-rows');
       if (rows) rows.insertAdjacentHTML('beforeend',
-        '<div id="photo-status" style="margin-top:14px;font-size:11px;color:var(--electric);text-align:right;">' + t + '</div>');
+        '<div id="photo-status" style="margin-top:2px;font-size:11px;color:rgba(238,240,242,0.5);text-align:right;">' + t + '</div>');
     };
     const refSafe = ref.replace('#', '');
 
@@ -1276,7 +1290,7 @@ function doBook() {
           imagesHtml += `<p>⚠️ ${failed} of ${results.length} photo(s) failed to upload. Ask the client to send them on LINE/Instagram.</p>`;
           setStatus('Some photos could not be uploaded. Please send them to us on LINE or Instagram.');
         } else {
-          setStatus('Photos received ✓');
+          setStatus('Photos received <span style="color:var(--electric);">✓</span>');
         }
         sendEmail('<p><b>📷 PHOTOS for booking ' + ref + '</b></p>' + imagesHtml);
       });
