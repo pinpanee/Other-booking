@@ -1190,26 +1190,38 @@ function doBook() {
     });
   }
 
+  // POST with real upload progress. Resolves with parsed JSON.
+  function xhrPost(url, body, headers, onProgress, timeoutMs) {
+    return new Promise((resolve, reject) => {
+      const x = new XMLHttpRequest();
+      x.open('POST', url);
+      Object.keys(headers || {}).forEach(k => x.setRequestHeader(k, headers[k]));
+      x.timeout = timeoutMs;
+      x.upload.onprogress = e => { if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total); };
+      x.onload = () => { try { resolve(JSON.parse(x.responseText)); } catch (err) { reject(new Error('Bad response')); } };
+      x.onerror = () => reject(new Error('Network error'));
+      x.ontimeout = () => reject(new Error('Timed out'));
+      x.send(body);
+    });
+  }
+
   // Returns { url, thumb } or throws. Retries once, 45s timeout per try.
-  async function uploadPhoto(file, fileName) {
+  async function uploadPhoto(file, fileName, onProgress) {
+    if (onProgress) onProgress(0);
     const blob = await compressImage(file);
     const base64 = await blobToBase64(blob);
     let lastErr;
     for (let attempt = 0; attempt < 2; attempt++) {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 45000);
       try {
-        const form = new FormData();
-        form.append('key', IMGBB_KEY);
-        form.append('image', base64);
-        const r = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: form, signal: ctrl.signal });
-        const data = await r.json();
-        if (data && data.success) return { url: data.data.url, thumb: data.data.url };
-        lastErr = new Error((data && data.error && data.error.message) || 'Upload rejected');
+      const form = new FormData();
+      form.append('key', IMGBB_KEY);
+      form.append('image', base64);
+      const data = await xhrPost('https://api.imgbb.com/1/upload', form, null,
+        f => onProgress && onProgress(0.05 + 0.95 * f), 45000);
+      if (data && data.success) { onProgress && onProgress(1); return { url: data.data.url, thumb: data.data.url }; }
+      lastErr = new Error((data && data.error && data.error.message) || 'Upload rejected');
       } catch (e) {
         lastErr = e;
-      } finally {
-        clearTimeout(timer);
       }
     }
     throw lastErr;
@@ -1259,11 +1271,28 @@ function doBook() {
     }
     if (bSub) bSub.innerHTML = '<span style="color:var(--steel-shine); opacity:0.65;">Please keep this page open<br>until your photos are sent</span>';
     if (bNote) bNote.style.display = 'none';
+    let bar = null;
+    if (bSub) {
+      bar = document.createElement('div');
+      bar.style.cssText = 'display:flex;align-items:center;gap:8px;width:100%;margin:2px 0 8px;';
+      bar.innerHTML = '<div style="flex:1;height:4px;background:rgba(10,111,255,0.2);"><div id="upl-fill" style="height:100%;width:0%;background:var(--electric);transition:width 0.25s;"></div></div><span id="upl-pct" style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:rgba(238,240,242,0.65);min-width:28px;text-align:right;">0%</span>';
+      bSub.insertAdjacentElement('afterend', bar);
+    }
+    const prog = validFiles.map(() => 0);
+    const setBar = frac => {
+      const pct = Math.max(0, Math.min(100, Math.round(frac * 100)));
+      const fill = document.getElementById('upl-fill');
+      const txt = document.getElementById('upl-pct');
+      if (fill) fill.style.width = pct + '%';
+      if (txt) txt.textContent = pct + '%';
+    };
+    const updateBar = () => setBar(prog.reduce((a, b) => a + b, 0) / prog.length);
     const restoreBanner = () => {
       if (bTitle) { bTitle.innerHTML = orig.t; bTitle.style.fontSize = ''; bTitle.style.whiteSpace = ''; }
       if (bIcon) { bIcon.innerHTML = orig.i; bIcon.classList.remove('uploading'); }
       if (bSub) bSub.innerHTML = orig.s;
       if (bNote) bNote.style.display = '';
+      if (bar) bar.remove();
     };
     // Result line goes under the booking details once uploads finish
     const setStatus = t => {
@@ -1274,7 +1303,8 @@ function doBook() {
     const refSafe = ref.replace('#', '');
 
     // Upload every photo (one failing never blocks the others), then send ONE email
-    Promise.allSettled(validFiles.map((f, i) => uploadPhoto(f, `${refSafe}-${i + 1}.jpg`)))
+    Promise.allSettled(validFiles.map((f, i) => uploadPhoto(f, `${refSafe}-${i + 1}.jpg`, v => { prog[i] = v; updateBar(); })))
+      .then(results => new Promise(resolve => { setBar(1); setTimeout(() => resolve(results), 400); }))
       .then(results => {
         restoreBanner();
         const ok = results.filter(r => r.status === 'fulfilled').map(r => r.value);
