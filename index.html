@@ -454,7 +454,7 @@
       <div class="logo" style="color:var(--electric); font-family:'Roboto Mono',monospace; display:inline-block; transform:scaleY(0.95); transform-origin:center;"><span style="opacity:0.25; margin-right:5px;">★</span>OTHE<span style="margin-right:2px;">R</span><span style="display:inline-block; width:2.1ch; height:2px; background:var(--electric); vertical-align:-0.1em; margin:0 0;"></span>O.O1<span style="opacity:0.25; margin-left:2.5px;">★</span></div>
       <span class="confirm-ref" id="confirm-ref">#OTH-1500-200606</span>
     </div>
-    <div class="confirm-banner" style="margin-top:9px; margin-bottom:0; padding:15px 20px; justify-content:center; align-items:center;">
+    <div class="confirm-banner" style="margin-top:9px; margin-bottom:0; padding:15px 20px; justify-content:center; align-items:center; height:109px;">
       <div class="confirm-banner-icon" id="banner-icon" style="align-self:flex-start;">✓</div>
       <div style="position:relative; left:2px;">
         <div class="confirm-banner-title" id="banner-title" style="margin-bottom:8px; transform:scaleY(0.88); transform-origin:left center; word-spacing:-3px; letter-spacing:0.6px;">BOOKING REQUEST SENT.</div>
@@ -1278,7 +1278,7 @@ function doBook() {
       if (bSub) {
         if (bar) bar.remove();
         bar = document.createElement('div');
-        bar.style.cssText = 'display:flex;align-items:center;gap:8px;width:100%;margin:2px 0 8px;';
+        bar.style.cssText = 'display:flex;align-items:center;gap:8px;width:100%;margin:0 0 5px;';
         bar.innerHTML = '<div style="flex:1;height:5px;background:rgba(10,111,255,0.2);"><div id="upl-fill" style="height:100%;width:0%;background:var(--electric);transition:width 0.25s;"></div></div><span id="upl-pct" style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:rgba(238,240,242,0.65);min-width:28px;text-align:right;">0%</span>';
         bSub.insertAdjacentElement('afterend', bar);
       }
