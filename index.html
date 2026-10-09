@@ -459,7 +459,7 @@
       <div style="position:relative; left:2px;">
         <div class="confirm-banner-title" id="banner-title" style="margin-bottom:8px; transform:scaleY(0.88); transform-origin:left center; word-spacing:-3px; letter-spacing:0.6px;">BOOKING REQUEST SENT<span style="margin-left:-1.5px;">.</span></div>
         <div class="confirm-banner-sub" id="banner-sub" style="line-height:1.5; padding-bottom:8px;"><span style="color:var(--steel-shine); opacity:0.65;">Location & Booking Confirmation</span><br><span style="color:var(--steel-shine); opacity:0.65;">will be sent to you shortly<span style="display:inline-block; width:2.5px;"></span>–<span style="display:inline-block; width:2.5px;"></span>⊹܀˙</span></div>
-        <div id="banner-note" style="position:relative; top:0.5px; margin-top:1px; margin-bottom:2px; font-size:8.6px; color:var(--electric); opacity:0.9; font-family:'IBM Plex Mono',monospace; font-style:italic; line-height:1.15; white-space:nowrap; word-spacing:-4.5px;">&lt;<span style="display:inline-block; width:2px;"></span><span style="display:inline-block; width:1px;"></span>make<span style="display:inline-block; width:1px;"></span> sure<span style="display:inline-block; width:1px;"></span> to<span style="display:inline-block; width:1px;"></span> check<span style="display:inline-block; width:1px;"></span> your '<span>spam</span>' folder<span style="font-size:0.6em; vertical-align:baseline;">!</span> &gt;</div>
+        <div id="banner-note" style="position:relative; top:1.5px; margin-top:1px; margin-bottom:2px; font-size:8.6px; color:var(--electric); opacity:0.9; font-family:'IBM Plex Mono',monospace; font-style:italic; line-height:1.15; white-space:nowrap; word-spacing:-4.5px;">&lt;<span style="display:inline-block; width:2px;"></span><span style="display:inline-block; width:1px;"></span>make<span style="display:inline-block; width:1px;"></span> sure<span style="display:inline-block; width:1px;"></span> to<span style="display:inline-block; width:1px;"></span> check<span style="display:inline-block; width:1px;"></span> your '<span>spam</span>' folder<span style="font-size:0.6em; vertical-align:baseline;">!</span> &gt;</div>
       </div>
     </div>
     <!-- Banner image — full original height -->
@@ -1273,13 +1273,13 @@ function doBook() {
         bTitle.style.letterSpacing = 'normal';
         bTitle.innerHTML = 'Uploading your photos<span class="upl-dots"><span>.</span><span>.</span><span>.</span></span>';
       }
-      if (bSub) bSub.innerHTML = '<span style="color:var(--steel-shine); opacity:0.65;">Please keep this page open<br>until upload is complete!</span>';
+      if (bSub) bSub.innerHTML = '<span style="color:var(--steel-shine); opacity:0.65;">Please keep this page open<br>until upload is complete!˙⊹</span>';
       if (bNote) bNote.style.display = 'none';
       if (bSub) {
         if (bar) bar.remove();
         bar = document.createElement('div');
-        bar.style.cssText = 'display:flex;align-items:center;gap:8px;width:100%;margin:0 0 5px;';
-        bar.innerHTML = '<div style="flex:1;height:5px;background:rgba(10,111,255,0.2);"><div id="upl-fill" style="height:100%;width:0%;background:var(--electric);transition:width 0.25s;"></div></div><span id="upl-pct" style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:rgba(238,240,242,0.65);min-width:28px;text-align:right;">0%</span>';
+        bar.style.cssText = 'display:flex;align-items:center;gap:8px;width:calc(100% - 2px);margin:0 0 5px;';
+        bar.innerHTML = '<div style="flex:1;height:5px;background:rgba(10,111,255,0.2);"><div id="upl-fill" style="height:100%;width:0%;background:var(--electric);transition:width 0.25s;"></div></div><span id="upl-pct" style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:rgba(238,240,242,0.65);min-width:28px;text-align:left;">0%</span>';
         bSub.insertAdjacentElement('afterend', bar);
       }
     };
