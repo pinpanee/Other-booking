@@ -116,7 +116,7 @@
   .slot:hover { border-color:var(--electric); color:var(--electric); box-shadow:0 0 10px var(--electric-dim); }
   .slot.picked { background:rgba(10,111,255,0.8); color:#fff; border-color:var(--electric); box-shadow:0 0 16px var(--electric-glow); }
   .slot.off { opacity:0.2; cursor:not-allowed; pointer-events:none; text-decoration:line-through; }
-  .slot.full { opacity:1; cursor:default; pointer-events:none; color:rgba(212,216,220,0.5); border-color:var(--electric-dim); background:rgba(10,111,255,0.32); letter-spacing:0.06em; font-weight:700; height:31px; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:7px; line-height:1.2; }
+  .slot.full { opacity:1; cursor:default; pointer-events:none; color:rgba(212,216,220,0.5); border-color:var(--electric-dim); background:rgba(10,111,255,0.32); letter-spacing:0.06em; font-weight:700; height:33.2px; padding:1px 0 0 1px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:7px; line-height:1.2; }
 
   /* ── MENU TABS ── */
   .menu-tabs { display:flex; gap:0; border:1px solid var(--border); margin-bottom:1px; }
@@ -944,6 +944,9 @@ function buildSlots() {
     full.className = 'slot full';
     full.innerHTML = 'FULLY<br>BOOKED';
     grid.appendChild(full);
+    // Match the height of the time slot boxes exactly
+    const refSlot = grid.querySelector('button.slot');
+    if (refSlot) full.style.height = refSlot.getBoundingClientRect().height + 'px';
   }
   alignSelBox();
 }
