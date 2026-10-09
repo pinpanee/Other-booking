@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5">
-<title>Booking Request — Other___0.001</title>
+<title>Booking Request — Other___0.01</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Syne+Mono&family=Syne:wght@400;600;800&family=JetBrains+Mono:wght@400;700;800&family=Montserrat:wght@700;800&family=Nunito+Sans:wght@700;800&family=Josefin+Sans:wght@700&family=Roboto+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -280,7 +280,7 @@
 <body>
 
 <header>
-  <div class="logo" style="color:var(--electric); font-family:'Roboto Mono',monospace; display:inline-block; transform:scaleY(0.95); transform-origin:center;"><span style="opacity:0.25; margin-right:5px;">★</span>OTHE<span style="margin-right:2px;">R</span><span style="display:inline-block; width:2.1ch; height:2px; background:var(--electric); vertical-align:-0.1em; margin:0 0;"></span>O.O01<span style="opacity:0.25; margin-left:2.5px;">★</span></div>
+  <div class="logo" style="color:var(--electric); font-family:'Roboto Mono',monospace; display:inline-block; transform:scaleY(0.95); transform-origin:center;"><span style="opacity:0.25; margin-right:5px;">★</span>OTHE<span style="margin-right:2px;">R</span><span style="display:inline-block; width:2.1ch; height:2px; background:var(--electric); vertical-align:-0.1em; margin:0 0;"></span>O.O1<span style="opacity:0.25; margin-left:2.5px;">★</span></div>
   <div class="header-appt" style="position:relative; top:1px;">BY APPOINTMENT ONLY</div>
   <nav></nav>
 </header>
@@ -450,9 +450,9 @@
     <div class="confirm-banner" style="margin-top:9px; margin-bottom:0; padding-top:15px;">
       <div class="confirm-banner-icon">✓</div>
       <div>
-        <div class="confirm-banner-title" style="margin-bottom:8px;">Booking Request Sent.</div>
-        <div class="confirm-banner-sub" style="line-height:1.5; padding-bottom:8px;"><span style="color:var(--steel-shine); opacity:0.65;">Location & Booking Confirmation</span><br><span style="color:var(--steel-shine); opacity:0.65;">will be sent to you shortly<span style="display:inline-block; width:2.5px;"></span>–<span style="display:inline-block; width:2.5px;"></span>⊹܀˙</span></div>
-        <div style="margin-top:1px; margin-bottom:2px; font-size:8.1px; color:var(--electric); opacity:0.9; font-family:'IBM Plex Mono',monospace; font-style:italic; line-height:1.15; white-space:nowrap; word-spacing:-3px;">&lt;<span style="display:inline-block; width:2px;"></span><span style="display:inline-block; width:1px;"></span>make<span style="display:inline-block; width:1px;"></span> sure<span style="display:inline-block; width:1px;"></span> to<span style="display:inline-block; width:1px;"></span> check<span style="display:inline-block; width:1px;"></span> your '<span>spam</span>' folder<span style="font-size:0.6em; vertical-align:baseline;">!</span> &gt;</div>
+        <div class="confirm-banner-title" id="banner-title" style="margin-bottom:8px;">Booking Request Sent.</div>
+        <div class="confirm-banner-sub" id="banner-sub" style="line-height:1.5; padding-bottom:8px;"><span style="color:var(--steel-shine); opacity:0.65;">Location & Booking Confirmation</span><br><span style="color:var(--steel-shine); opacity:0.65;">will be sent to you shortly<span style="display:inline-block; width:2.5px;"></span>–<span style="display:inline-block; width:2.5px;"></span>⊹܀˙</span></div>
+        <div id="banner-note" style="margin-top:1px; margin-bottom:2px; font-size:8.1px; color:var(--electric); opacity:0.9; font-family:'IBM Plex Mono',monospace; font-style:italic; line-height:1.15; white-space:nowrap; word-spacing:-3px;">&lt;<span style="display:inline-block; width:2px;"></span><span style="display:inline-block; width:1px;"></span>make<span style="display:inline-block; width:1px;"></span> sure<span style="display:inline-block; width:1px;"></span> to<span style="display:inline-block; width:1px;"></span> check<span style="display:inline-block; width:1px;"></span> your '<span>spam</span>' folder<span style="font-size:0.6em; vertical-align:baseline;">!</span> &gt;</div>
       </div>
     </div>
     <!-- Banner image — full original height -->
@@ -1066,6 +1066,19 @@ document.getElementById('f-email').addEventListener('input', validate);
 document.getElementById('f-phone').addEventListener('input', validate);
 document.getElementById('f-instagram').addEventListener('input', validate);
 
+// Browser autofill often fills fields without firing 'input' events until the
+// user touches the page, which left the button disabled. Catch those cases:
+['f-name','f-email','f-phone','f-instagram'].forEach(id => {
+  const el = document.getElementById(id);
+  ['change','blur','animationstart'].forEach(ev => el.addEventListener(ev, validate));
+});
+let _formSig = '';
+setInterval(() => {
+  const sig = ['f-name','f-email','f-phone','f-instagram','f-contact']
+    .map(id => document.getElementById(id).value).join('|');
+  if (sig !== _formSig) { _formSig = sig; validate(); }
+}, 400);
+
 // ─────────────────────────────────────────────────────────────
 // SUBMIT
 // ─────────────────────────────────────────────────────────────
@@ -1225,15 +1238,31 @@ function doBook() {
     // Send the booking email RIGHT AWAY so it can never be lost; photos follow in a 2nd email
     sendEmail('<p>📷 Client attached ' + validFiles.length + ' photo(s). They are uploading now — a follow-up email with the photos will arrive shortly.</p>');
 
-    // Show the client a status line so they keep the page open until done
-    document.getElementById('modal-rows').insertAdjacentHTML('beforeend',
-      '<div id="photo-status" style="margin-top:14px;font-size:11px;opacity:0.6;">Uploading your photos… please keep this page open.</div>');
-    const setStatus = t => { const el = document.getElementById('photo-status'); if (el) el.textContent = t; };
+    // While photos upload, the green-check box tells the client to keep the page open
+    const bTitle = document.getElementById('banner-title');
+    const bSub   = document.getElementById('banner-sub');
+    const bNote  = document.getElementById('banner-note');
+    const orig   = { t: bTitle ? bTitle.innerHTML : '', s: bSub ? bSub.innerHTML : '' };
+    if (bTitle) bTitle.textContent = 'Uploading your photos…';
+    if (bSub) bSub.innerHTML = '<span style="color:var(--steel-shine); opacity:0.65;">Please keep this page open<br>until your photos are sent</span>';
+    if (bNote) bNote.style.display = 'none';
+    const restoreBanner = () => {
+      if (bTitle) bTitle.innerHTML = orig.t;
+      if (bSub) bSub.innerHTML = orig.s;
+      if (bNote) bNote.style.display = '';
+    };
+    // Result line goes under the booking details once uploads finish
+    const setStatus = t => {
+      const rows = document.getElementById('modal-rows');
+      if (rows) rows.insertAdjacentHTML('beforeend',
+        '<div id="photo-status" style="margin-top:14px;font-size:11px;color:var(--electric);text-align:right;">' + t + '</div>');
+    };
     const refSafe = ref.replace('#', '');
 
     // Upload every photo (one failing never blocks the others), then send ONE email
     Promise.allSettled(validFiles.map((f, i) => uploadPhoto(f, `${refSafe}-${i + 1}.jpg`)))
       .then(results => {
+        restoreBanner();
         const ok = results.filter(r => r.status === 'fulfilled').map(r => r.value);
         const failed = results.length - ok.length;
         results.forEach(r => { if (r.status === 'rejected') console.error('Photo upload error:', r.reason); });
