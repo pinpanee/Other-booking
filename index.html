@@ -100,7 +100,7 @@
   @keyframes uplArrow { 0%{transform:translateY(11px);opacity:0} 30%{opacity:1} 70%{opacity:1} 100%{transform:translateY(-11px);opacity:0} }
   @keyframes uplDot { 0%,80%,100%{opacity:0.15} 40%{opacity:1} }
   .upl-arrow { display:inline-block; font-size:17px; font-weight:700; animation:uplArrow 1s ease-in-out infinite; }
-  .confirm-banner-icon.uploading { overflow:hidden; }
+  .confirm-banner-icon.uploading { overflow:hidden; background:none; box-shadow:none; }
   .upl-dots span { animation:uplDot 1.2s ease-in-out infinite; }
   .upl-dots span:nth-child(2) { animation-delay:0.2s; }
   .upl-dots span:nth-child(3) { animation-delay:0.4s; }
@@ -1153,7 +1153,7 @@ function doBook() {
   // ── PHOTO UPLOAD → ImgBB (compressed first, with timeout + retry) ──
   // Photos are shrunk to JPEG first (fixes huge files / odd formats / slow
   // mobile uploads), then saved into a Drive folder named by booking ref.
-  async function compressImage(file, maxW = 1600, quality = 0.8) {
+  async function compressImage(file, maxW = 1200, quality = 0.7) {
     try {
       let bmp;
       if (window.createImageBitmap) {
@@ -1181,15 +1181,6 @@ function doBook() {
     }
   }
 
-  function blobToBase64(blob) {
-    return new Promise((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(String(r.result).split(',')[1]);
-      r.onerror = () => reject(new Error('Could not read image'));
-      r.readAsDataURL(blob);
-    });
-  }
-
   // POST with real upload progress. Resolves with parsed JSON.
   function xhrPost(url, body, headers, onProgress, timeoutMs) {
     return new Promise((resolve, reject) => {
@@ -1205,26 +1196,36 @@ function doBook() {
     });
   }
 
-  // Returns { url, thumb } or throws. Retries once, 45s timeout per try.
-  async function uploadPhoto(file, fileName, onProgress) {
-    if (onProgress) onProgress(0);
-    const blob = await compressImage(file);
-    const base64 = await blobToBase64(blob);
+  // Core upload: sends a JPEG blob as a normal file field. Returns { url, thumb } or throws.
+  async function uploadBlob(blob, fileName, onProgress, timeoutMs, tries) {
     let lastErr;
-    for (let attempt = 0; attempt < 2; attempt++) {
+    for (let attempt = 0; attempt < tries; attempt++) {
       try {
-      const form = new FormData();
-      form.append('key', IMGBB_KEY);
-      form.append('image', base64);
-      const data = await xhrPost('https://api.imgbb.com/1/upload', form, null,
-        f => onProgress && onProgress(0.05 + 0.95 * f), 45000);
-      if (data && data.success) { onProgress && onProgress(1); return { url: data.data.url, thumb: data.data.url }; }
-      lastErr = new Error((data && data.error && data.error.message) || 'Upload rejected');
+        const form = new FormData();
+        form.append('key', IMGBB_KEY);
+        form.append('image', blob, fileName);
+        const data = await xhrPost('https://api.imgbb.com/1/upload', form, null,
+          f => onProgress && onProgress(0.05 + 0.95 * f), timeoutMs);
+        if (data && data.success) { onProgress && onProgress(1); return { url: data.data.url, thumb: data.data.url }; }
+        lastErr = new Error((data && data.error && data.error.message) || 'Upload rejected');
       } catch (e) {
         lastErr = e;
       }
     }
     throw lastErr;
+  }
+
+  // Larger version (1200px, ~100-200 KB): 30s timeout, retried once.
+  async function uploadPhoto(file, fileName, onProgress) {
+    if (onProgress) onProgress(0);
+    const blob = await compressImage(file);
+    return uploadBlob(blob, fileName, onProgress, 30000, 2);
+  }
+
+  // Tiny thumbnail (320px, ~15-30 KB) for the first email: 10s timeout, single try.
+  async function uploadThumb(file, fileName) {
+    const blob = await compressImage(file, 320, 0.6);
+    return uploadBlob(blob, fileName, null, 10000, 1);
   }
 
 
@@ -1254,8 +1255,7 @@ function doBook() {
   if (validFiles.length === 0) {
     sendEmail('None');
   } else {
-    // Send the booking email RIGHT AWAY so it can never be lost; photos follow in a 2nd email
-    sendEmail('<p>📷 Client attached ' + validFiles.length + ' photo(s). They are uploading now — a follow-up email with the photos will arrive shortly.</p>');
+    // Booking email goes out after the thumbnails are ready (max 10s wait) — see below
 
     // While photos upload, the green-check box tells the client to keep the page open
     const bTitle = document.getElementById('banner-title');
@@ -1263,21 +1263,25 @@ function doBook() {
     const bNote  = document.getElementById('banner-note');
     const bIcon  = document.getElementById('banner-icon');
     const orig   = { t: bTitle ? bTitle.innerHTML : '', s: bSub ? bSub.innerHTML : '', i: bIcon ? bIcon.innerHTML : '' };
-    if (bIcon) { bIcon.classList.add('uploading'); bIcon.innerHTML = '<span class="upl-arrow">↑</span>'; }
-    if (bTitle) {
-      bTitle.style.fontSize = '13px';
-      bTitle.style.whiteSpace = 'nowrap';
-      bTitle.innerHTML = 'Uploading your photos<span class="upl-dots"><span>.</span><span>.</span><span>.</span></span>';
-    }
-    if (bSub) bSub.innerHTML = '<span style="color:var(--steel-shine); opacity:0.65;">Please keep this page open<br>until your photos are sent</span>';
-    if (bNote) bNote.style.display = 'none';
     let bar = null;
-    if (bSub) {
-      bar = document.createElement('div');
-      bar.style.cssText = 'display:flex;align-items:center;gap:8px;width:100%;margin:2px 0 8px;';
-      bar.innerHTML = '<div style="flex:1;height:4px;background:rgba(10,111,255,0.2);"><div id="upl-fill" style="height:100%;width:0%;background:var(--electric);transition:width 0.25s;"></div></div><span id="upl-pct" style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:rgba(238,240,242,0.65);min-width:28px;text-align:right;">0%</span>';
-      bSub.insertAdjacentElement('afterend', bar);
-    }
+    const showUploading = () => {
+      if (bIcon) { bIcon.classList.add('uploading'); bIcon.innerHTML = '<span class="upl-arrow">↑</span>'; }
+      if (bTitle) {
+        bTitle.style.fontSize = '13px';
+        bTitle.style.whiteSpace = 'nowrap';
+        bTitle.innerHTML = 'Uploading your photos<span class="upl-dots"><span>.</span><span>.</span><span>.</span></span>';
+      }
+      if (bSub) bSub.innerHTML = '<span style="color:var(--steel-shine); opacity:0.65;">Please keep this page open<br>until your photos are sent</span>';
+      if (bNote) bNote.style.display = 'none';
+      if (bSub) {
+        if (bar) bar.remove();
+        bar = document.createElement('div');
+        bar.style.cssText = 'display:flex;align-items:center;gap:8px;width:100%;margin:2px 0 8px;';
+        bar.innerHTML = '<div style="flex:1;height:4px;background:rgba(10,111,255,0.2);"><div id="upl-fill" style="height:100%;width:0%;background:var(--electric);transition:width 0.25s;"></div></div><span id="upl-pct" style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:rgba(238,240,242,0.65);min-width:28px;text-align:right;">0%</span>';
+        bSub.insertAdjacentElement('afterend', bar);
+      }
+    };
+    showUploading();
     const prog = validFiles.map(() => 0);
     const setBar = frac => {
       const pct = Math.max(0, Math.min(100, Math.round(frac * 100)));
@@ -1292,38 +1296,110 @@ function doBook() {
       if (bIcon) { bIcon.innerHTML = orig.i; bIcon.classList.remove('uploading'); }
       if (bSub) bSub.innerHTML = orig.s;
       if (bNote) bNote.style.display = '';
-      if (bar) bar.remove();
+      if (bar) { bar.remove(); bar = null; }
     };
     // Result line goes under the booking details once uploads finish
+    const clearStatus = () => { const el = document.getElementById('photo-status'); if (el) el.remove(); };
     const setStatus = t => {
+      clearStatus();
       const rows = document.getElementById('modal-rows');
       if (rows) rows.insertAdjacentHTML('beforeend',
         '<div id="photo-status" style="margin-top:2px;font-size:11px;color:rgba(238,240,242,0.5);text-align:right;">' + t + '</div>');
     };
     const refSafe = ref.replace('#', '');
+    const totalPhotos = validFiles.length;
+    const full   = validFiles.map(() => null);   // full-size upload results
+    const thumbs = validFiles.map(() => null);   // tiny thumbnail upload results
 
-    // Upload every photo (one failing never blocks the others), then send ONE email
-    Promise.allSettled(validFiles.map((f, i) => uploadPhoto(f, `${refSafe}-${i + 1}.jpg`, v => { prog[i] = v; updateBar(); })))
-      .then(results => new Promise(resolve => { setBar(1); setTimeout(() => resolve(results), 400); }))
-      .then(results => {
-        restoreBanner();
-        const ok = results.filter(r => r.status === 'fulfilled').map(r => r.value);
-        const failed = results.length - ok.length;
-        results.forEach(r => { if (r.status === 'rejected') console.error('Photo upload error:', r.reason); });
+    // Ask the browser to confirm before the client closes/leaves the page mid-upload
+    const warnLeave = e => { e.preventDefault(); e.returnValue = ''; return ''; };
 
-        let imagesHtml = ok.map(p =>
-          `<p><a href="${p.url}" target="_blank">
-             <img src="${p.thumb}" style="max-width:400px; max-height:400px; display:block; margin:6px 0;" />
-           </a><br><a href="${p.url}" target="_blank">Open photo</a></p>`
-        ).join('');
-        if (failed > 0) {
-          imagesHtml += `<p>⚠️ ${failed} of ${results.length} photo(s) failed to upload. Ask the client to send them on LINE/Instagram.</p>`;
-          setStatus('Some photos could not be uploaded. Please send them to us on LINE or Instagram.');
-        } else {
-          setStatus('Photos received <span style="color:var(--electric);">✓</span>');
+    // Email 2 (and any retry email): the larger images, all in ONE email
+    const sendFullEmail = (idxs, heading) => {
+      const okIdx = idxs.filter(i => full[i]);
+      const failedIdx = full.map((p, i) => p ? -1 : i).filter(i => i >= 0);
+      let html = '<p><b>📷 ' + heading + ' for booking ' + ref + '</b></p>' + okIdx.map(i =>
+        `<p><b>Photo ${i + 1} of ${totalPhotos}</b><br><a href="${full[i].url}" target="_blank">
+           <img src="${full[i].url}" style="max-width:400px; max-height:400px; display:block; margin:6px 0;" />
+         </a><a href="${full[i].url}" target="_blank">Open full size</a></p>`
+      ).join('');
+      if (failedIdx.length) {
+        html += `<p>⚠️ ${failedIdx.length} of ${totalPhotos} photo(s) failed to upload. The client has a retry button; if no more arrive, ask them to send them on Instagram.</p>`;
+      }
+      sendEmail(html);
+    };
+
+    // Upload the given photo indexes at full size, 2 at a time (more reliable on weak mobile data)
+    async function runUploads(indexes) {
+      const queue = indexes.slice();
+      const worker = async () => {
+        while (queue.length) {
+          const i = queue.shift();
+          try {
+            full[i] = await uploadPhoto(validFiles[i], `${refSafe}-${i + 1}.jpg`, v => { prog[i] = v; updateBar(); });
+            prog[i] = 1; updateBar();
+          } catch (err) {
+            prog[i] = 0; updateBar();
+            console.error('Photo upload error:', err);
+          }
         }
-        sendEmail('<p><b>📷 PHOTOS for booking ' + ref + '</b></p>' + imagesHtml);
-      });
+      };
+      await Promise.all([worker(), worker()]);
+    }
+
+    const retryHtml = n =>
+      n + ' photo(s) did not upload.<br>' +
+      '<button id="photo-retry" style="margin-top:6px;font-family:\'IBM Plex Mono\',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;background:none;border:1px solid var(--electric);color:var(--electric);padding:6px 12px;cursor:pointer;">↻ Retry upload</button><br>' +
+      '<span style="font-size:10px;">or send them to us on Instagram</span>';
+
+    function finishUploads(idxs, isRetry) {
+      setBar(1);
+      setTimeout(() => {
+        window.removeEventListener('beforeunload', warnLeave);
+        restoreBanner();
+        const failedIdx = full.map((p, i) => p ? -1 : i).filter(i => i >= 0);
+        // First pass always sends the follow-up (it carries the larger images and any failure note).
+        // A retry only sends one if something new actually got through.
+        if (!isRetry || idxs.some(i => full[i])) sendFullEmail(idxs, isRetry ? 'More photos' : 'Full-size photos');
+        if (!failedIdx.length) {
+          setStatus('Photos received <span style="color:var(--electric);">✓</span>');
+          return;
+        }
+        setStatus(retryHtml(failedIdx.length));
+        const retryBtn = document.getElementById('photo-retry');
+        if (retryBtn) retryBtn.onclick = () => {
+          clearStatus();
+          window.addEventListener('beforeunload', warnLeave);
+          showUploading();
+          failedIdx.forEach(i => { prog[i] = 0; });
+          updateBar();
+          runUploads(failedIdx).then(() => finishUploads(failedIdx, true));
+        };
+      }, 400);
+    }
+
+    window.addEventListener('beforeunload', warnLeave);
+
+    // STEP 1 — tiny thumbnails upload first (a few KB each, so fast). Wait for them, but
+    // never longer than 10s, then send the booking email with whatever thumbnails are ready.
+    const thumbPhase = Promise.all(validFiles.map((f, i) =>
+      uploadThumb(f, `${refSafe}-${i + 1}-thumb.jpg`).then(p => { thumbs[i] = p; }).catch(() => {})
+    ));
+    Promise.race([thumbPhase, new Promise(r => setTimeout(r, 10000))])
+      .then(() => {
+        const ready = thumbs.filter(Boolean);
+        const missing = totalPhotos - ready.length;
+        sendEmail(
+          '<p>📷 Client attached ' + totalPhotos + ' photo(s). Thumbnails below; larger versions follow in a second email.</p>' +
+          '<p>' + thumbs.map(p => p
+            ? `<a href="${p.url}" target="_blank"><img src="${p.url}" width="150" style="width:150px; height:auto; margin:0 6px 6px 0; border:1px solid #ccc;" /></a>`
+            : '').join('') + '</p>' +
+          (missing ? `<p>(${missing} thumbnail(s) not ready yet — they will be in the follow-up email.)</p>` : '')
+        );
+        // STEP 2 — now upload the larger versions, then ONE follow-up email
+        return runUploads(validFiles.map((_, i) => i));
+      })
+      .then(() => finishUploads(validFiles.map((_, i) => i), false));
   }
 }
 
